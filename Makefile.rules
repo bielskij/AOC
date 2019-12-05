@@ -1,0 +1,19 @@
+APP_NAME_A ?= $(shell basename $(PWD))_a
+APP_NAME_B ?= $(shell basename $(PWD))_b
+
+init:
+	mkdir -p $(DIR_OUT)
+
+all: init
+
+ifneq ($(SRCS_A),)
+	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_A) $(SRCS_A) $(SRCS)
+endif
+
+ifneq ($(SRCS_B),)
+	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_B) $(SRCS_B) $(SRCS)
+endif
+
+clean:
+	rm -rf $(DIR_OUT)
+
