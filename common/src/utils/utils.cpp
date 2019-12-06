@@ -34,5 +34,5 @@ std::vector<std::string> utils::strTok(const std::string &str, char delimiter) {
 
 
 int utils::manhattanDistance(const Point &l, const Point &r) {
-	return std::abs(l.getX() - r.getX()) + std::abs(l.getY() - r.getY());
+	return std::abs((int)(l.getX() - r.getX())) + std::abs((int)(l.getY() - r.getY()));
 }
