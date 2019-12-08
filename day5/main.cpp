@@ -9,26 +9,30 @@
 
 class CustomIntMachine : public IntCodeMachine {
 	public:
-		void onOut(int value) {
-			PRINTF(("OUT> %d", value));
+		CustomIntMachine(const std::vector<int> &program) : IntCodeMachine(program) {
+
 		}
 
-		int  onIn() {
+		bool onOut(int value) {
+			PRINTF(("OUT> %d", value));
+
+			return true;
+		}
+
+		bool onIn(int &value) {
 			std::string inputString;
 
 			PRINTF(("IN<"));
 
 			std::getline(std::cin, inputString);
 
-			return atoi(inputString.c_str());
+			value = atoi(inputString.c_str());
+
+			return true;
 		}
 };
 
 
 int main(int argc, char *argv[]) {
-	std::vector<int> codes = utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ','));
-
-	CustomIntMachine machine;
-
-	machine.run(codes);
+	CustomIntMachine(utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ','))).run();
 }

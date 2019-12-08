@@ -6,20 +6,28 @@
 
 class IntCodeMachine {
 	public:
-		IntCodeMachine();
+		IntCodeMachine(const std::vector<int> &program);
 		virtual ~IntCodeMachine();
 
-		void run(std::vector<int> &program);
+		bool run();
+
+		void reset();
+		bool finished() const;
+
+		std::vector<int> &getMemory();
 
 	protected:
-		virtual void onOut(int value);
-		virtual int  onIn();
+		virtual bool onOut(int value);
+		virtual bool onIn(int &value);
 
 	private:
-		void handleOpcode(std::vector<int> &mem, int code, int arg1, int arg2, int arg3);
+		bool handleOpcode(std::vector<int> &mem, int code, int arg1, int arg2, int arg3);
 
 	private:
+		bool eop;
 		int pc;
+		std::vector<int> memory;
+		std::vector<int> program;
 };
 
 

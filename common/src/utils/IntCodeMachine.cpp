@@ -5,8 +5,9 @@
 #include "common/debug.h"
 
 
-IntCodeMachine::IntCodeMachine() {
-	this->pc = 0;
+IntCodeMachine::IntCodeMachine(const std::vector<int> &program) : memory(program), program(program) {
+	this->pc  = 0;
+	this->eop = false;
 }
 
 
@@ -15,18 +16,21 @@ IntCodeMachine::~IntCodeMachine() {
 }
 
 
-void IntCodeMachine::onOut(int value) {
+bool IntCodeMachine::onOut(int value) {
 	WRN(("Default implementation!"));
+
+	return false;
 }
 
 
-int IntCodeMachine::onIn() {
+bool IntCodeMachine::onIn(int &value) {
 	WRN(("Default implementation!"));
-	return 0;
+
+	return false;
 }
 
 
-void IntCodeMachine::handleOpcode(std::vector<int> &mem, int code, int arg1, int arg2, int arg3) {
+bool IntCodeMachine::handleOpcode(std::vector<int> &mem, int code, int arg1, int arg2, int arg3) {
 	switch (code) {
 		case 1:
 		case 2:
@@ -49,17 +53,27 @@ void IntCodeMachine::handleOpcode(std::vector<int> &mem, int code, int arg1, int
 
 		case 3:
 			{
-				mem[arg1] = this->onIn();
+				int inVal;
 
-				pc += 2;
+				if (! this->onIn(inVal)) {
+					return false;
+
+				} else {
+					mem[arg1] = inVal;
+
+					pc += 2;
+				}				
 			}
 			break;
 
 		case 4:
 			{
-				this->onOut(mem[arg1]);
+				if (! this->onOut(mem[arg1])) {
+					return false;
 
-				pc += 2;
+				} else {
+					pc += 2;
+				}				
 			}
 			break;
 
@@ -102,17 +116,21 @@ void IntCodeMachine::handleOpcode(std::vector<int> &mem, int code, int arg1, int
 
 			throw std::runtime_error("Not supported opcode!");
 	}
+
+	return true;
 }
 
 
 
-void IntCodeMachine::run(std::vector<int> &program) {
+bool IntCodeMachine::run() {
 	int num;
 
-	this->pc = 0;
+	if (this->finished()) {
+		return false;
+	}
 
 	do {
-		num = program.at(this->pc);
+		num = this->memory.at(this->pc);
 
 		switch (num) {
 			case 1:
@@ -123,11 +141,13 @@ void IntCodeMachine::run(std::vector<int> &program) {
 			case 6:
 			case 7:
 			case 8:
-				this->handleOpcode(program, num, program[this->pc + 1], program[this->pc + 2], program[this->pc + 3]);
+				if (! this->handleOpcode(this->memory, num, memory[this->pc + 1], memory[this->pc + 2], memory[this->pc + 3])) {
+					return false;
+				}
 				break;
 
 			case 99:
-				LOG(("EOA"));
+				this->eop = true;
 				break;
 
 			default:
@@ -139,18 +159,20 @@ void IntCodeMachine::run(std::vector<int> &program) {
 						int arg3 = this->pc + 3;
 
 						if ((num % 1000) < 100) {
-							arg1 = program[arg1];
+							arg1 = memory[arg1];
 						}
 
 						if ((num % 10000) < 1000) {
-							arg2 = program[arg2];
+							arg2 = memory[arg2];
 						}
 
 						if ((num % 100000) < 10000) {
-							arg3 = program[arg3];
+							arg3 = memory[arg3];
 						}
 
-						this->handleOpcode(program, opcode, arg1, arg2, arg3);
+						if (! this->handleOpcode(memory, opcode, arg1, arg2, arg3)) {
+							return false;
+						}
 
 					} else {
 						ERR(("Not supported code: %d", num));
@@ -161,4 +183,23 @@ void IntCodeMachine::run(std::vector<int> &program) {
 				break;
 		}
 	} while (num != 99);
+
+	return true;
+}
+
+
+void IntCodeMachine::reset() {
+	this->memory = this->program;
+	this->pc     = 0;
+	this->eop    = false;
+}
+
+
+bool IntCodeMachine::finished() const {
+	return this->eop;
+}
+
+
+std::vector<int> &IntCodeMachine::getMemory() {
+	return this->memory;
 }

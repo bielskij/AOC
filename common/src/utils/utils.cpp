@@ -3,6 +3,17 @@
 #include "utils/utils.h"
 
 
+std::vector<long long int> utils::string2LongLongInt(const std::vector<std::string> &src) {
+	std::vector<long long int> ret;
+
+	for (auto it = src.begin(); it != src.end(); it++) {
+		ret.push_back(std::stoll(it->c_str()));
+	}
+
+	return ret;
+}
+
+
 std::vector<int> utils::string2Int(const std::vector<std::string> &src) {
 	std::vector<int> ret;
 

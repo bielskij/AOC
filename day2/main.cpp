@@ -6,19 +6,15 @@
 
 
 int main(int argc, char *argv[]) {
-	std::vector<int> codes = utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ','));
-
-	IntCodeMachine machine;
+	IntCodeMachine machine(utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ',')));
 
 	{
-		std::vector<int> program = codes;
+		machine.getMemory()[1] = 12;
+		machine.getMemory()[2] = 2;
 
-		program[1] = 12;
-		program[2] = 2;
+		machine.run();
 
-		machine.run(program);
-
-		PRINTF(("PART A: %d", program[0]));
+		PRINTF(("PART A: %d", machine.getMemory()[0]));
 	}
 
 	{
@@ -26,14 +22,14 @@ int main(int argc, char *argv[]) {
 
 		for (int noun = 0; noun < 99; noun++) {
 			for (int verb = 0; verb < 99; verb++) {
-				std::vector<int> program = codes;
+				machine.reset();
 
-				program[1] = noun;
-				program[2] = verb;
+				machine.getMemory()[1] = noun;
+				machine.getMemory()[2] = verb;
 
-				machine.run(program);
+				machine.run();
 
-				if (program[0] == expectedResult) {
+				if (machine.getMemory()[0] == expectedResult) {
 					PRINTF(("Part B: %d", 100 * noun + verb));
 					exit (1);
 				}
