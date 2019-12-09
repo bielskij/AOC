@@ -14,11 +14,16 @@ std::vector<int64_t> utils::string2Int64t(const std::vector<std::string> &src) {
 }
 
 
-std::vector<int> utils::string2Int(const std::vector<std::string> &src) {
+int utils::toInt(const std::string &src) {
+	return atoi(src.c_str());
+}
+
+
+std::vector<int> utils::toIntV(const std::vector<std::string> &src) {
 	std::vector<int> ret;
 
 	for (auto it = src.begin(); it != src.end(); it++) {
-		ret.push_back(atoi(it->c_str()));
+		ret.push_back(toInt(it->c_str()));
 	}
 
 	return ret;
