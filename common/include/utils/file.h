@@ -1,6 +1,7 @@
 #ifndef UTILS_FILE_H_
 #define UTILS_FILE_H_
 
+#include <string>
 #include <vector>
 
 class File {

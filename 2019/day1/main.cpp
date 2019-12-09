@@ -33,7 +33,7 @@ static int _calculateFuelStepB(int mass) {
 
 
 int main(int argc, char *argv[]) {
-	auto samples = utils::string2Int(File::readAllLines(argv[1]));
+	auto samples = utils::toIntV(File::readAllLines(argv[1]));
 
 	{
 		int total = 0;

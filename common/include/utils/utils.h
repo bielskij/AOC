@@ -8,7 +8,8 @@
 
 
 namespace utils {
-	std::vector<int> string2Int(const std::vector<std::string> &src);
+	int toInt(const std::string &src);
+	std::vector<int> toIntV(const std::vector<std::string> &src);
 
 	std::vector<int64_t> string2Int64t(const std::vector<std::string> &src);
 
