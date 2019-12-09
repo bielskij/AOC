@@ -6,7 +6,7 @@
 
 
 int main(int argc, char *argv[]) {
-	IntCodeMachine machine(utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ',')));
+	IntCodeMachine machine(utils::string2Int64t(utils::strTok(File::readAllLines(argv[1])[0], ',')));
 
 	{
 		machine.getMemory()[1] = 12;
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
 		machine.run();
 
-		PRINTF(("PART A: %d", machine.getMemory()[0]));
+		PRINTF(("PART A: %" PRId64, machine.getMemory()[0]));
 	}
 
 	{

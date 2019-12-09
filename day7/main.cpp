@@ -13,7 +13,7 @@
 
 class Amplifier : public IntCodeMachine {
 	public:
-		Amplifier(const std::vector<int> &program) : IntCodeMachine(program) {
+		Amplifier(const std::vector<int64_t> &program) : IntCodeMachine(program) {
 			this->phase     = 0;
 			this->sendPhase = false;
 			this->next      = NULL;
@@ -32,8 +32,8 @@ class Amplifier : public IntCodeMachine {
 		}
 
 	protected:
-		bool onOut(int value) {
-			LOG(("OUT> %d", value));
+		bool onOut(int64_t value) {
+			LOG(("OUT> %" PRId64, value));
 
 			this->outputs.push_back(value);
 
@@ -44,7 +44,7 @@ class Amplifier : public IntCodeMachine {
 			return true;
 		}
 
-		bool onIn(int &value) {
+		bool onIn(int64_t &value) {
 			if (this->sendPhase) {
 				value = this->phase;
 
@@ -60,7 +60,7 @@ class Amplifier : public IntCodeMachine {
 				}
 			}
 
-			LOG(("[%p] IN< %d", this, value));
+			LOG(("[%p] IN< %" PRId64, this, value));
 
 			return true;
 		}
@@ -74,7 +74,7 @@ class Amplifier : public IntCodeMachine {
 			this->phase = phase;
 		}
 
-		const std::vector<int> &getOutputs() const {
+		const std::vector<int64_t> &getOutputs() const {
 			return this->outputs;
 		}
 
@@ -86,8 +86,8 @@ class Amplifier : public IntCodeMachine {
 		int phase;
 		bool sendPhase;
 
-		std::queue<int> inputs;
-		std::vector<int> outputs;
+		std::queue<int64_t> inputs;
+		std::vector<int64_t> outputs;
 
 		Amplifier *next;
 };
@@ -116,7 +116,7 @@ static void _genPermutation(std::vector<std::vector<int>> &out, int a[], int siz
 
 
 int main(int argc, char *argv[]) {
-	std::vector<int> codes = utils::string2Int(utils::strTok(File::readAllLines(argv[1])[0], ','));
+	std::vector<int64_t> codes = utils::string2Int64t(utils::strTok(File::readAllLines(argv[1])[0], ','));
 
 	{
 		int phases[] = { 0, 1, 2, 3, 4 };
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
 				}
 			} while (! allFinished);
 
-			const std::vector<int> &outputs = amplifiers.rbegin()->getOutputs();
+			const std::vector<int64_t> &outputs = amplifiers.rbegin()->getOutputs();
 			if (*outputs.rbegin() > max) {
 				max = *outputs.rbegin();
 			}

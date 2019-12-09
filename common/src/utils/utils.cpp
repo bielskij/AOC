@@ -3,8 +3,8 @@
 #include "utils/utils.h"
 
 
-std::vector<long long int> utils::string2LongLongInt(const std::vector<std::string> &src) {
-	std::vector<long long int> ret;
+std::vector<int64_t> utils::string2Int64t(const std::vector<std::string> &src) {
+	std::vector<int64_t> ret;
 
 	for (auto it = src.begin(); it != src.end(); it++) {
 		ret.push_back(std::stoll(it->c_str()));

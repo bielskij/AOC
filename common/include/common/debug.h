@@ -1,7 +1,8 @@
 #ifndef COMMON_DEBUG_H_
 #define COMMON_DEBUG_H_
 
-#include <stdio.h>
+#include <cstdio>
+#include <cinttypes>
 
 #define DEBUG_LEVEL_ERR  1
 #define DEBUG_LEVEL_WARN 2

@@ -10,7 +10,7 @@
 namespace utils {
 	std::vector<int> string2Int(const std::vector<std::string> &src);
 
-	std::vector<long long int> string2LongLongInt(const std::vector<std::string> &src);
+	std::vector<int64_t> string2Int64t(const std::vector<std::string> &src);
 
 	std::vector<std::string> strTok(const std::string &str, char delimiter);
 
