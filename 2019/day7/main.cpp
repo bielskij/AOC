@@ -116,7 +116,7 @@ static void _genPermutation(std::vector<std::vector<int>> &out, int a[], int siz
 
 
 int main(int argc, char *argv[]) {
-	std::vector<int64_t> codes = utils::string2Int64t(utils::strTok(File::readAllLines(argv[1])[0], ','));
+	std::vector<int64_t> codes = utils::toInt64tV(utils::strTok(File::readAllLines(argv[1])[0], ','));
 
 	{
 		int phases[] = { 0, 1, 2, 3, 4 };

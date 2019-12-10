@@ -6,7 +6,7 @@
 
 
 int main(int argc, char *argv[]) {
-	IntCodeMachine machine(utils::string2Int64t(utils::strTok(File::readAllLines(argv[1])[0], ',')));
+	IntCodeMachine machine(utils::toInt64tV(utils::strTok(File::readAllLines(argv[1])[0], ',')));
 
 	{
 		machine.getMemory()[1] = 12;
