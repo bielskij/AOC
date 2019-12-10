@@ -3,11 +3,16 @@
 #include "utils/utils.h"
 
 
-std::vector<int64_t> utils::string2Int64t(const std::vector<std::string> &src) {
+int64_t utils::toInt64t(const std::string &src) {
+	return std::stoll(src.c_str());
+}
+
+
+std::vector<int64_t> utils::toInt64tV(const std::vector<std::string> &src) {
 	std::vector<int64_t> ret;
 
 	for (auto it = src.begin(); it != src.end(); it++) {
-		ret.push_back(std::stoll(it->c_str()));
+		ret.push_back(toInt64t(*it));
 	}
 
 	return ret;

@@ -38,5 +38,5 @@ class CustomIntMachine : public IntCodeMachine {
 
 
 int main(int argc, char *argv[]) {
-	CustomIntMachine(utils::string2Int64t(utils::strTok(File::readAllLines(argv[1])[0], ','))).run();
+	CustomIntMachine(utils::toInt64tV(utils::strTok(File::readAllLines(argv[1])[0], ','))).run();
 }

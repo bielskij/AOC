@@ -7,11 +7,11 @@ init:
 all: init
 
 ifneq ($(SRCS_A),)
-	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_A) $(SRCS_A) $(SRCS)
+	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_A) $(SRCS_A) $(SRCS) $(LDFLAGS)
 endif
 
 ifneq ($(SRCS_B),)
-	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_B) $(SRCS_B) $(SRCS)
+	g++ $(CFLAGS) -o $(DIR_OUT)/$(APP_NAME_B) $(SRCS_B) $(SRCS) $(LDFLAGS)
 endif
 
 clean:
