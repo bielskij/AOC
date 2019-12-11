@@ -108,51 +108,31 @@ int main(int argc, char *argv[]) {
 	}
 
 	{
-			char grid[HEIGHT][WIDTH] = {};
+		char grid[HEIGHT][WIDTH] = {};
 
-			for (auto rule = rules.begin(); rule != rules.end(); rule++) {
-				for (int y = rule->start.getY(); y <= rule->end.getY(); y++) {
-					for (int x = rule->start.getX(); x <= rule->end.getX(); x++) {
-						switch (rule->action) {
-							case Rule::ACTION_ON:     grid[y][x] += 1; break;
-							case Rule::ACTION_OFF:    grid[y][x] -= 1; break;
-							case Rule::ACTION_TOGGLE: grid[y][x] += 2; break;
-						}
+		for (auto rule = rules.begin(); rule != rules.end(); rule++) {
+			for (int y = rule->start.getY(); y <= rule->end.getY(); y++) {
+				for (int x = rule->start.getX(); x <= rule->end.getX(); x++) {
+					switch (rule->action) {
+						case Rule::ACTION_ON:     grid[y][x] += 1; break;
+						case Rule::ACTION_OFF:    grid[y][x] -= 1; break;
+						case Rule::ACTION_TOGGLE: grid[y][x] += 2; break;
+					}
 
-						if (grid[y][x] < 0) {
-							grid[y][x] = 0;
-						}
+					if (grid[y][x] < 0) {
+						grid[y][x] = 0;
 					}
 				}
 			}
-
-			int sum = 0;
-			for (int y = 0; y < HEIGHT; y++) {
-				for (int x = 0; x < WIDTH; x++) {
-					sum += grid[y][x];
-				}
-			}
-
-			PRINTF(("PART_B: %d", sum));
 		}
 
+		int sum = 0;
+		for (int y = 0; y < HEIGHT; y++) {
+			for (int x = 0; x < WIDTH; x++) {
+				sum += grid[y][x];
+			}
+		}
 
-//
-//	for (int y = 0; y < HEIGHT; y++) {
-//		for (int x = 0; x < WIDTH; x++) {
-//			grid[y][x] = 1;
-//		}
-//	}
-//
-//	for (int x = 0; x < WIDTH; x++) {
-//		grid[0][x] ^= 1;
-//	}
-//
-//	for (int y = 499; y <= 500; y++) {
-//		for (int x = 499; x <= 500; x++) {
-//			grid[y][x] = 0;
-//		}
-//	}
-//
-
+		PRINTF(("PART_B: %d", sum));
+	}
 }
