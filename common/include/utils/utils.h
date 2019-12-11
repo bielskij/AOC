@@ -17,6 +17,8 @@ namespace utils {
 	std::vector<std::string> strTok(const std::string &str, char delimiter);
 
 	int manhattanDistance(const Point &l, const Point &r);
+
+	int countSubstring(const std::string& str, const std::string& sub);
 }
 
 #endif /* UTILS_UTILS_H_ */
