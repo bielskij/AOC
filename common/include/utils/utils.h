@@ -19,6 +19,24 @@ namespace utils {
 	int manhattanDistance(const Point &l, const Point &r);
 
 	int countSubstring(const std::string& str, const std::string& sub);
+
+	bool isNumber(const std::string& s);
+
+	template <class T>
+	T nwd(T a, T b) {
+		while(a != b)
+			if(a > b)
+				a -= b;
+			else
+				b -= a;
+
+		return a;
+	}
+
+	template <class T>
+	T nww(T a, T b) {
+		return (a * b) / nwd(a, b);
+	}
 }
 
 #endif /* UTILS_UTILS_H_ */
