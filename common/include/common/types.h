@@ -47,6 +47,69 @@ class Point {
 		float y;
 };
 
+template <class T>
+class Point3d {
+	public:
+		Point3d() {
+			this->n[0] = 0;
+			this->n[1] = 0;
+			this->n[2] = 0;
+		}
+
+		Point3d(T x, T y, T z) {
+			this->n[0] = x;
+			this->n[1] = y;
+			this->n[2] = z;
+		}
+
+		virtual ~Point3d() {
+		}
+
+		T getX() const {
+			return this->n[0];
+		}
+
+		T getY() const {
+			return this->n[1];
+		}
+
+		T getZ() const {
+			return this->n[2];
+		}
+
+		T get(int idx) {
+			return this->n[idx];
+		}
+
+		void setX(T x) {
+			this->n[0] = x;
+		}
+
+		void setY(T y) {
+			this->n[1] = y;
+		}
+
+		void setZ(T z) {
+			this->n[2] = z;
+		}
+
+		void set(int idx, T v) {
+			this->n[idx] = v;
+		}
+
+		bool operator==(const Point3d &other) {
+			return (this->n[0] == other.n[0]) && (this->n[1] == other.n[1]) && (this->n[2] == other.n[2]);
+		}
+
+		bool operator!=(const Point3d &other) {
+			return !(*this == other);
+		}
+
+	private:
+		T n[3];
+};
+
+
 class Line {
 	public:
 		Line(const Point &begin, const Point &end) {
