@@ -16,6 +16,9 @@ namespace utils {
 
 	std::vector<std::string> strTok(const std::string &str, char delimiter);
 
+	std::string toString(int value);
+	std::string toString(int64_t value);
+
 	int manhattanDistance(const Point &l, const Point &r);
 
 	int countSubstring(const std::string& str, const std::string& sub);
