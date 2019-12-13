@@ -35,6 +35,20 @@ std::vector<int> utils::toIntV(const std::vector<std::string> &src) {
 }
 
 
+std::string utils::toString(int value) {
+	return utils::toString((int64_t)value);
+}
+
+
+std::string utils::toString(int64_t value) {
+	std::stringstream ss;
+
+	ss << value;
+
+	return ss.str();
+}
+
+
 std::vector<std::string> utils::strTok(const std::string &str, char delimiter) {
 	std::vector<std::string> ret;
 
