@@ -68,11 +68,6 @@ std::vector<std::string> utils::strTok(const std::string &str, char delimiter) {
 }
 
 
-int utils::manhattanDistance(const Point &l, const Point &r) {
-	return std::abs((int)(l.getX() - r.getX())) + std::abs((int)(l.getY() - r.getY()));
-}
-
-
 int utils::countSubstring(const std::string& str, const std::string& sub) {
 	if (sub.length() == 0) {
 		return 0;
@@ -94,4 +89,23 @@ bool utils::isNumber(const std::string& s) {
 	while (it != s.end() && std::isdigit(*it)) ++it;
 
 	return !s.empty() && it == s.end();
+}
+
+
+std::string utils::ltrim(const std::string &src, const std::string &chars) {
+	size_t start = src.find_first_not_of(chars);
+
+	return (start == std::string::npos) ? "" : src.substr(start);
+}
+
+
+std::string utils::rtrim(const std::string &src, const std::string &chars) {
+	size_t end = src.find_last_not_of(chars);
+
+	return (end == std::string::npos) ? "" : src.substr(0, end + 1);
+}
+
+
+std::string utils::trim(const std::string &src, const std::string &chars) {
+	return rtrim(ltrim(src, chars), chars);
 }

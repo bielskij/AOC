@@ -13,9 +13,9 @@
 
 
 struct Pixel {
-	Point position;
-	int   color;
-	int   paintNumber;
+	Point<int> position;
+	int        color;
+	int        paintNumber;
 
 	static int DEFAULT_COLOR;
 
@@ -188,9 +188,9 @@ class Robot : public IntCodeMachine {
 		}
 
 	private:
-		Mode      mode;
-		Direction direction;
-		Point     position;
+		Mode       mode;
+		Direction  direction;
+		Point<int> position;
 
 		std::vector<Pixel> pixels;
 };

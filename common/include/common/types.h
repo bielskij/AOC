@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+template <class T>
 class Point {
 	public:
 		Point() {
@@ -10,7 +11,7 @@ class Point {
 			this->y = 0;
 		}
 
-		Point(int x, int y) {
+		Point(T x, T y) {
 			this->x = x;
 			this->y = y;
 		}
@@ -18,19 +19,19 @@ class Point {
 		virtual ~Point() {
 		}
 
-		float getX() const {
+		T getX() const {
 			return this->x;
 		}
 
-		float getY() const {
+		T getY() const {
 			return this->y;
 		}
 
-		void setX(float x) {
+		void setX(T x) {
 			this->x = x;
 		}
 
-		void setY(float y) {
+		void setY(T y) {
 			this->y = y;
 		}
 
@@ -42,9 +43,13 @@ class Point {
 			return !(*this == other);
 		}
 
+		Point operator+(const Point &other) {
+			return Point(this->getX() + other.getX(), this->getY() + other.getY());
+		}
+
 	private:
-		float x;
-		float y;
+		T x;
+		T y;
 };
 
 template <class T>
@@ -110,9 +115,10 @@ class Point3d {
 };
 
 
+template <class T>
 class Line {
 	public:
-		Line(const Point &begin, const Point &end) {
+		Line(const Point<T> &begin, const Point<T> &end) : start(begin), end(end) {
 			this->a = end.getY() - begin.getY();
 			this->b = begin.getX() - end.getX();
 			this->c = a * begin.getX() + b * begin.getY();
@@ -123,14 +129,39 @@ class Line {
 			return (c - a * x) / b;
 		}
 
-		bool crossTrough(const Point &p) {
+		bool crossTrough(const Point<T> &p) {
 			return this->a * p.getX() + this->b * p.getY() == this->c;
+		}
+
+		bool crossTrough(const Line<T> &line, Point<T> &point) {
+			float uA = ((line.end.getX() - line.start.getX()) * (this->start.getY() - line.start.getY()) - (line.end.getY() - line.start.getY()) * (this->start.getX() - line.start.getX())) / ((line.end.getY() - line.start.getY()) * (this->end.getX() - this->start.getX()) - (line.end.getX() - line.start.getX()) * (this->end.getY() - this->start.getY()));
+			float uB = ((this->end.getX() - this->start.getX()) * (this->start.getY() - line.start.getY()) - (this->end.getY() - this->start.getY()) * (this->start.getX() - line.start.getX())) / ((line.end.getY() - line.start.getY()) * (this->end.getX() - this->start.getX()) - (line.end.getX() - line.start.getX()) * (this->end.getY() - this->start.getY()));
+
+			if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+				point.setX(this->start.getX() + (uA * (this->end.getX() - this->start.getX())));
+				point.setY(this->start.getY() + (uA * (this->end.getY() - this->start.getY())));
+
+				return true;
+			}
+
+			return false;
+		}
+
+		Point<T> getStart() const {
+			return this->start;
+		}
+
+		Point<T> getEnd() const {
+			return this->end;
 		}
 
 	private:
 		float a;
 		float b;
 		float c;
+
+		Point<T> start;
+		Point<T> end;
 };
 
 
