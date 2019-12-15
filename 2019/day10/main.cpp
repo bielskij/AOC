@@ -42,7 +42,7 @@ struct VectorComparator {
 
 
 int main(int argc, char *argv[]) {
-	std::vector<Point> asteroids;
+	std::vector<Point<int>> asteroids;
 	int width = 0;
 	int height = 0;
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
 			for (int col = 0; col < line.size(); col++) {
 				if (line[col] == '#') {
-					asteroids.push_back(Point(col, row));
+					asteroids.push_back(Point<int>(col, row));
 				}
 			}
 		}
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
 	DBG(("Have %zd asteroids", asteroids.size()));
 
-	Point location;
+	Point<int> location;
 
 	{
 		int   asteroidNumber = 0;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
 			for (auto dst = asteroids.begin(); dst != asteroids.end(); dst++) {
 				if (*src != *dst) {
-					Line l(*src, *dst);
+					Line<int> l(*src, *dst);
 
 					int minX = src->getX() < dst->getX() ? src->getX() : dst->getX();
 					int minY = src->getY() < dst->getY() ? src->getY() : dst->getY();
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 
 					for (int y = minY; y <= maxY; y++) {
 						for (int x = minX; x <= maxX; x++) {
-							Point p(x, y);
+							Point<int> p(x, y);
 
 							if (p != *src && p != *dst) {
 								if (l.crossTrough(p)) {

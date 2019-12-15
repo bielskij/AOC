@@ -217,7 +217,7 @@ bool IntCodeMachine::handleOpcode(int code, int64_t arg1, int64_t arg2, int64_t 
 					DBG(("[%" _IP "] IN m[%" _IP "] = %" _IP, this->pc, arg1, inVal));
 
 					pc += 2;
-				}				
+				}
 			}
 			break;
 
@@ -378,7 +378,7 @@ bool IntCodeMachine::run() {
 						}
 
 					} else {
-						ERR(("Not supported code: %" PRId64, num));
+						ERR(("Not supported code: %" PRId64 ", at: %" PRId64, num, this->pc));
 
 						throw std::runtime_error("Not supported opcode!");
 					}

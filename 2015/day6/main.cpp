@@ -54,20 +54,20 @@ struct Rule {
 		{
 			auto coords = utils::strTok(words[idx], ',');
 
-			this->start = Point(utils::toInt(coords[0]), utils::toInt(coords[1]));
+			this->start = Point<int>(utils::toInt(coords[0]), utils::toInt(coords[1]));
 
 			idx += 2;
 
 			coords = utils::strTok(words[idx], ',');
 
-			this->end = Point(utils::toInt(coords[0]), utils::toInt(coords[1]));
+			this->end = Point<int>(utils::toInt(coords[0]), utils::toInt(coords[1]));
 		}
 
 	}
 
 	Action action;
-	Point  start;
-	Point  end;
+	Point<int> start;
+	Point<int> end;
 };
 
 

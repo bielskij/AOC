@@ -10,45 +10,11 @@
 #include "common/debug.h"
 
 
-struct Line {
-	Point start;
-	Point end;
-
-	Line(const Point &start, const Point &end) {
-		this->start = start;
-		this->end   = end;
-	}
-};
 
 
 struct Wire {
-	std::vector<Line> lines;
+	std::vector<Line<float>> lines;
 };
-
-
-static bool intersection(const Line &l1, const Line &l2, Point &intersection) {
-	float uA = ((l2.end.getX() - l2.start.getX()) * (l1.start.getY() - l2.start.getY()) - (l2.end.getY() - l2.start.getY()) * (l1.start.getX() - l2.start.getX())) / ((l2.end.getY() - l2.start.getY()) * (l1.end.getX() - l1.start.getX()) - (l2.end.getX() - l2.start.getX()) * (l1.end.getY() - l1.start.getY()));
-	float uB = ((l1.end.getX() - l1.start.getX()) * (l1.start.getY() - l2.start.getY()) - (l1.end.getY() - l1.start.getY()) * (l1.start.getX() - l2.start.getX())) / ((l2.end.getY() - l2.start.getY()) * (l1.end.getX() - l1.start.getX()) - (l2.end.getX() - l2.start.getX()) * (l1.end.getY() - l1.start.getY()));
-
-	if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-		intersection.setX(l1.start.getX() + (uA * (l1.end.getX() - l1.start.getX())));
-		intersection.setY(l1.start.getY() + (uA * (l1.end.getY() - l1.start.getY())));
-
-		return true;
-	}
-
-	return false;
-}
-
-
-static bool pointOnLine(const Line &line, const Point &point) {
-	float dxc = point.getX() - line.start.getX();
-	float dyc = point.getY() - line.start.getY();
-	float dx1 = line.end.getX() - line.start.getX();
-	float dy1 = line.end.getY() - line.start.getY();
-
-	return (dxc * dy1 - dyc * dx1) == 0 ? true : false;
-}
 
 
 int main(int argc, char *argv[]) {
@@ -62,8 +28,8 @@ int main(int argc, char *argv[]) {
 		{
 			std::vector<std::string> wireRules = utils::strTok(*wireIt, ',');
 
-			Point start;
-			Point end;
+			Point<float> start;
+			Point<float> end;
 
 			for (auto ruleIt = wireRules.begin(); ruleIt != wireRules.end(); ruleIt++) {
 				int length = atoi(ruleIt->c_str() + 1);
@@ -88,7 +54,7 @@ int main(int argc, char *argv[]) {
 						break;
 				}
 
-				w.lines.push_back(Line(start, end));
+				w.lines.push_back(Line<float>(start, end));
 			}
 		}
 
@@ -97,7 +63,7 @@ int main(int argc, char *argv[]) {
 
 	// Step A
 	{
-		std::vector<Point> intersections;
+		std::vector<Point<float>> intersections;
 
 		for (auto wireChecked = wires.begin(); wireChecked != wires.end(); wireChecked++) {
 			for (auto otherWire = wires.begin(); otherWire != wires.end(); otherWire++) {
@@ -106,9 +72,9 @@ int main(int argc, char *argv[]) {
 					// Each line in wireChecked
 					for (auto lineChecked = wireChecked->lines.begin(); lineChecked != wireChecked->lines.end(); lineChecked++) {
 						for (auto lineOther = otherWire->lines.begin(); lineOther != otherWire->lines.end(); lineOther++) {
-							Point intersectionPoint;
+							Point<float> intersectionPoint;
 
-							if (intersection(*lineChecked, *lineOther, intersectionPoint)) {
+							if (lineChecked->crossTrough(*lineOther, intersectionPoint)) {
 								if (intersectionPoint.getX() != 0 && intersectionPoint.getY() != 0) {
 									if (std::find(intersections.begin(), intersections.end(), intersectionPoint) == intersections.end()) {
 										intersections.push_back(intersectionPoint);
@@ -124,7 +90,7 @@ int main(int argc, char *argv[]) {
 		int minDistance = INT_MAX;
 
 		for (auto p = intersections.begin(); p != intersections.end(); p++) {
-			int distance = utils::manhattanDistance(*p, Point(0, 0));
+			int distance = utils::manhattanDistance<float>(*p, Point<float>(0, 0));
 
 			if (distance < minDistance) {
 				minDistance = distance;
@@ -146,12 +112,12 @@ int main(int argc, char *argv[]) {
 				for (auto line = wire->lines.begin(); line != wire->lines.end(); line++) {
 					int intersectionDistance = -1;
 
-					if (pointOnLine(*line, *intersection)) {
-						intersectionDistance = utils::manhattanDistance(line->start, *intersection);
+					if (line->crossTrough(*intersection)) {
+						intersectionDistance = utils::manhattanDistance(line->getStart(), *intersection);
 					}
 
 					if (intersectionDistance < 0) {
-						pathLength += utils::manhattanDistance(line->start, line->end);
+						pathLength += utils::manhattanDistance(line->getStart(), line->getEnd());
 
 					} else {
 						pathLength += intersectionDistance;

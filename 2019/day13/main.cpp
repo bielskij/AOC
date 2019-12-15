@@ -36,12 +36,12 @@ class ArcadeGame : public IntCodeMachine {
 				TYPE_BALL
 			};
 
-			Tile(Type type, const Point &position) : position(position) {
+			Tile(Type type, const Point<int> &position) : position(position) {
 				this->type = type;
 			}
 
-			Type type;
-			Point position;
+			Type       type;
+			Point<int> position;
 		};
 
 	public:
@@ -180,9 +180,9 @@ class ArcadeGame : public IntCodeMachine {
 		OutState state;
 
 		int score;
-		Point tmp;
-		Point ball;
-		Point paddle;
+		Point<int> tmp;
+		Point<int> ball;
+		Point<int> paddle;
 		bool simulate;
 };
 

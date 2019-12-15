@@ -5,7 +5,7 @@
 #include <vector>
 #include <queue>
 #include <stack>
-
+#include <set>
 
 class Graph {
 	public:
@@ -54,6 +54,9 @@ class Graph {
 
 		Graph(const std::vector<Edge> &edges) {
 			for (auto edge = edges.begin(); edge != edges.end(); edge++) {
+				this->vertexes.insert(edge->getSrc());
+				this->vertexes.insert(edge->getDst());
+
 				// TODO: Check for duplicates
 				this->adjVertices[edge->getSrc()].push_back(std::pair<Vertex *, float>(edge->getDst(), edge->getWeight()));
 
@@ -97,14 +100,15 @@ class Graph {
 			dist.clear();
 			prev.clear();
 
-			for (auto v = this->adjVertices.begin(); v != this->adjVertices.end(); v++) {
-				dist[v->first] = INT_MAX;
-				prev[v->first] = NULL;
+			for (auto v = vertexes.begin(); v != vertexes.end(); v++) {
+				dist[*v] = INT_MAX;
+				prev[*v] = NULL;
 
-				q.push_back(v->first);
+				q.push_back(*v);
 			}
 
 			dist[root] = 0;
+			prev[root] = nullptr;
 
 			while (! q.empty()) {
 				Vertex *u;
@@ -136,6 +140,7 @@ class Graph {
 
 
 	private:
+		std::set<Vertex *> vertexes;
 		std::map<Vertex *, std::vector<std::pair<Vertex *, float>>> adjVertices;
 };
 

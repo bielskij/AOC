@@ -19,11 +19,18 @@ namespace utils {
 	std::string toString(int value);
 	std::string toString(int64_t value);
 
-	int manhattanDistance(const Point &l, const Point &r);
+	template <class T>
+	T manhattanDistance(const Point<T> &l, const Point<T> &r) {
+		return std::abs(l.getX() - r.getX()) + std::abs(l.getY() - r.getY());
+	}
 
 	int countSubstring(const std::string& str, const std::string& sub);
 
 	bool isNumber(const std::string& s);
+
+	std::string ltrim(const std::string &src, const std::string &chars);
+	std::string rtrim(const std::string &src, const std::string &chars);
+	std::string trim(const std::string &src, const std::string &chars);
 
 	template <class T>
 	T nwd(T a, T b) {
