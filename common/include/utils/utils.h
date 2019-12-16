@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <set>
+#include <algorithm>
 
 #include "common/types.h"
 
@@ -46,6 +49,34 @@ namespace utils {
 	template <class T>
 	T nww(T a, T b) {
 		return (a * b) / nwd(a, b);
+	}
+
+	template <class T>
+	static void genPermutation(std::vector<std::vector<T>> &out, std::vector<T> &in) {
+		int c[in.size()] = { 0 };
+
+		out.push_back(in);
+
+		int i = 0;
+		while (i < in.size()) {
+			if (c[i] < i) {
+				if (i % 2 == 1) {
+					std::swap(in[c[i]], in[i]);
+				} else {
+					std::swap(in[0], in[i]);
+				}
+
+				out.push_back(in);
+
+				c[i]++;
+				i = 0;
+
+			} else {
+				c[i] = 0;
+
+				i++;
+			}
+		}
 	}
 }
 
