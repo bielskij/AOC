@@ -35,6 +35,22 @@ class Point {
 			this->y = y;
 		}
 
+		void incX() {
+			this->x++;
+		}
+
+		void decX() {
+			this->x--;
+		}
+
+		void incY() {
+			this->y++;
+		}
+
+		void decY() {
+			this->y--;
+		}
+
 		bool operator==(const Point &other) {
 			return this->x == other.x && this->y == other.y;
 		}
