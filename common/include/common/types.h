@@ -35,6 +35,11 @@ class Point {
 			this->y = y;
 		}
 
+		void set(T x, T y) {
+			this->setX(x);
+			this->setY(y);
+		}
+
 		void incX() {
 			this->x++;
 		}
@@ -61,6 +66,13 @@ class Point {
 
 		Point operator+(const Point &other) {
 			return Point(this->getX() + other.getX(), this->getY() + other.getY());
+		}
+
+		Point &operator=(const Point &other) {
+			this->x = other.x;
+			this->y = other.y;
+
+			return *this;
 		}
 
 	private:
