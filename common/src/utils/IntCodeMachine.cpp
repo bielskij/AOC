@@ -12,7 +12,7 @@ IntCodeMachine::IntCodeMachine(const std::vector<int64_t> &program) : memory(pro
 	this->eop          = false;
 	this->relativeBase = 0;
 
-	this->memory.resize(64 * 1024 * 1024);
+	this->memory.resize(64 * 1024);
 }
 
 
@@ -317,6 +317,73 @@ bool IntCodeMachine::handleOpcode(int code, int64_t arg1, int64_t arg2, int64_t 
 }
 
 
+bool IntCodeMachine::step() {
+	if (this->finished()) {
+		return false;
+	}
+
+	int64_t num = this->memory.at(this->pc);
+	switch (num) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			if (! this->handleOpcode(num, memory[this->pc + 1], memory[this->pc + 2], memory[this->pc + 3])) {
+				return false;
+			}
+			break;
+
+		case 99:
+			this->eop = true;
+			break;
+
+		default:
+			{
+				if (num > 100) {
+					int64_t opcode = num % 100;
+					int64_t arg1 = this->pc + 1;
+					int64_t arg2 = this->pc + 2;
+					int64_t arg3 = this->pc + 3;
+
+					switch ((num / 100) % 10) {
+						case 0: arg1 = memory[arg1];                      break;
+						case 1:                                           break;
+						case 2: arg1 = memory[arg1] + this->relativeBase; break;
+					}
+
+					switch ((num / 1000) % 10) {
+						case 0: arg2 = memory[arg2];                      break;
+						case 1:                                           break;
+						case 2: arg2 = memory[arg2] + this->relativeBase; break;
+					}
+
+					switch ((num / 10000) % 10) {
+						case 0: arg3 = memory[arg3];                      break;
+						case 1:                                           break;
+						case 2: arg3 = memory[arg3] + this->relativeBase; break;
+					}
+
+					if (! this->handleOpcode(opcode, arg1, arg2, arg3)) {
+						return false;
+					}
+
+				} else {
+					ERR(("Not supported code: %" PRId64 ", at: %" PRId64, num, this->pc));
+
+					throw std::runtime_error("Not supported opcode!");
+				}
+			}
+			break;
+	}
+
+	return true;
+}
+
 
 bool IntCodeMachine::run() {
 	int64_t num;
@@ -326,66 +393,10 @@ bool IntCodeMachine::run() {
 	}
 
 	do {
-		num = this->memory.at(this->pc);
-
-		switch (num) {
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-			case 7:
-			case 8:
-			case 9:
-				if (! this->handleOpcode(num, memory[this->pc + 1], memory[this->pc + 2], memory[this->pc + 3])) {
-					return false;
-				}
-				break;
-
-			case 99:
-				this->eop = true;
-				break;
-
-			default:
-				{
-					if (num > 100) {
-						int64_t opcode = num % 100;
-						int64_t arg1 = this->pc + 1;
-						int64_t arg2 = this->pc + 2;
-						int64_t arg3 = this->pc + 3;
-
-						switch ((num / 100) % 10) {
-							case 0: arg1 = memory[arg1];                      break;
-							case 1:                                           break;
-							case 2: arg1 = memory[arg1] + this->relativeBase; break;
-						}
-
-						switch ((num / 1000) % 10) {
-							case 0: arg2 = memory[arg2];                      break;
-							case 1:                                           break;
-							case 2: arg2 = memory[arg2] + this->relativeBase; break;
-						}
-
-						switch ((num / 10000) % 10) {
-							case 0: arg3 = memory[arg3];                      break;
-							case 1:                                           break;
-							case 2: arg3 = memory[arg3] + this->relativeBase; break;
-						}
-
-						if (! this->handleOpcode(opcode, arg1, arg2, arg3)) {
-							return false;
-						}
-
-					} else {
-						ERR(("Not supported code: %" PRId64 ", at: %" PRId64, num, this->pc));
-
-						throw std::runtime_error("Not supported opcode!");
-					}
-				}
-				break;
+		if (! this->step()) {
+			return false;
 		}
-	} while (num != 99);
+	} while (! this->finished());
 
 	return true;
 }

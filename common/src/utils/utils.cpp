@@ -1,4 +1,10 @@
 #include <sstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <inttypes.h>
+#include <unistd.h>
+
 
 #include "utils/utils.h"
 
@@ -108,4 +114,18 @@ std::string utils::rtrim(const std::string &src, const std::string &chars) {
 
 std::string utils::trim(const std::string &src, const std::string &chars) {
 	return rtrim(ltrim(src, chars), chars);
+}
+
+
+uint64_t utils::llrand(uint64_t max) {
+	uint64_t num = 0;
+
+	int fd = open("/dev/urandom", O_RDONLY);
+	if (fd >= 0) {
+		read(fd, &num, sizeof(num));
+
+		close(fd);
+	};
+
+	return num % max;
 }

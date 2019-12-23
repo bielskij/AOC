@@ -17,6 +17,7 @@ class IntCodeMachine {
 		IntCodeMachine(const std::vector<int64_t> &program);
 		virtual ~IntCodeMachine();
 
+		bool step();
 		bool run();
 
 		void reset();

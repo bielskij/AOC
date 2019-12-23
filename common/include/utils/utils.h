@@ -52,7 +52,7 @@ namespace utils {
 	}
 
 	template <class T>
-	static void genPermutation(std::vector<std::vector<T>> &out, std::vector<T> &in) {
+	void genPermutation(std::vector<std::vector<T>> &out, std::vector<T> &in) {
 		int c[in.size()] = { 0 };
 
 		out.push_back(in);
@@ -78,6 +78,8 @@ namespace utils {
 			}
 		}
 	}
+
+	uint64_t llrand(uint64_t max);
 }
 
 #endif /* UTILS_UTILS_H_ */
