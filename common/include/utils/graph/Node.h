@@ -13,6 +13,9 @@ namespace graph {
 				this->_id = id;
 			}
 
+			virtual ~Node() {
+			}
+
 			int id() const {
 				return this->_id;
 			}

@@ -478,3 +478,57 @@ void IntCodeMachine::setPc(int64_t pc) {
 void IntCodeMachine::addMemoryWatch(int64_t address) {
 	this->watchedAddresses.insert(address);
 }
+
+
+void IntCodeMachine::save(SaveSlot &slot) {
+	slot.memory       = this->memory;
+	slot.pc           = this->pc;
+	slot.relativeBase = this->relativeBase;
+	slot.eop          = this->eop;
+}
+
+
+void IntCodeMachine::load(SaveSlot &slot) {
+	this->memory       = slot.memory;
+	this->pc           = slot.pc;
+	this->relativeBase = slot.relativeBase;
+	this->eop          = slot.eop;
+}
+
+
+void IntCodeMachine::dumpMemory() {
+	int i;
+
+	int lineLength = 32;
+	int bufferSize = this->memory.size();
+	int offset     = 0;
+
+	char asciiBuffer[lineLength + 1];
+
+	for (i = 0; i < bufferSize; i++) {
+		if (i % lineLength == 0) {
+			if (i != 0) {
+				printf("  %s\n", asciiBuffer);
+			}
+
+			printf("%04x:  ", i + offset);
+		}
+
+		printf(" %02x", (unsigned char) this->memory.at(i));
+
+		if (! isprint((char) this->memory.at(i))) {
+			asciiBuffer[i % lineLength] = '.';
+		} else {
+			asciiBuffer[i % lineLength] = this->memory.at(i);
+		}
+
+		asciiBuffer[(i % lineLength) + 1] = '\0';
+	}
+
+	while ((i % 16) != 0) {
+		printf("   ");
+		i++;
+	}
+
+	printf("  %s\n", asciiBuffer);
+}

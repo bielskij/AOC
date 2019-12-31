@@ -51,6 +51,10 @@ namespace utils {
 		return (a * b) / nwd(a, b);
 	}
 
+	void genCombinationsUtil(std::vector<std::vector<int> > &combinations, std::vector<int> &tmp, int n, int left, int k);
+	// Generates combinations from elements between <1 and n>
+	void genCombinations(std::vector<std::vector<int>> &out, int n, int k);
+
 	template <class T>
 	void genPermutation(std::vector<std::vector<T>> &out, std::vector<T> &in) {
 		int c[in.size()] = { 0 };

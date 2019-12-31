@@ -129,3 +129,27 @@ uint64_t utils::llrand(uint64_t max) {
 
 	return num % max;
 }
+
+
+void utils::genCombinationsUtil(std::vector<std::vector<int> > &combinations, std::vector<int> &tmp, int n, int left, int k) {
+	if (k == 0) {
+		combinations.push_back(tmp);
+
+		return;
+	}
+
+	for (int i = left; i <= n; ++i) {
+		tmp.push_back(i);
+		genCombinationsUtil(combinations, tmp, n, i + 1, k - 1);
+		tmp.pop_back();
+	}
+}
+
+
+void utils::genCombinations(std::vector<std::vector<int>> &out, int n, int k) {
+	std::vector<int> tmp;
+
+	out.clear();
+
+	genCombinationsUtil(out, tmp, n, 1, k);
+}

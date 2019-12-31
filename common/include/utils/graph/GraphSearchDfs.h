@@ -65,6 +65,8 @@ namespace graph {
 							this->route.push_back(graph->getNode(parent));
 						} while (parent != startID);
 
+						std::reverse(this->route.begin(), this->route.end());
+
 						route = this->route;
 
 						break;
