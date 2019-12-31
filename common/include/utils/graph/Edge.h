@@ -37,6 +37,9 @@ namespace graph {
 				this->_cost = cost;
 			}
 
+			virtual ~Edge() {
+			}
+
 			double cost() const {
 				return this->_cost;
 			}

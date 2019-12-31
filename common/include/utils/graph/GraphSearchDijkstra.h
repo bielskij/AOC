@@ -97,6 +97,8 @@ namespace graph {
 							this->route.push_back(n);
 						}
 
+						std::reverse(this->route.begin(), this->route.end());
+
 						route = this->route;
 
 						break;

@@ -7,6 +7,14 @@
 
 
 class IntCodeMachine {
+	public:
+		struct SaveSlot {
+			std::vector<int64_t> memory;
+			int64_t              pc;
+			int64_t              relativeBase;
+			bool                 eop;
+		};
+
 	private:
 		enum Address {
 			ADDRESS_POSITION,
@@ -30,6 +38,10 @@ class IntCodeMachine {
 		void setPc(int64_t pc);
 
 		void addMemoryWatch(int64_t address);
+
+		void save(SaveSlot &slot);
+		void load(SaveSlot &slot);
+		void dumpMemory();
 
 	protected:
 		virtual bool onOut(int64_t value);
