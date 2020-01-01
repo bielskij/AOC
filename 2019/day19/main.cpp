@@ -106,7 +106,7 @@ class Drone : public IntCodeMachine {
 				getLineCoords(i                           , startA, endA);
 				getLineCoords(i + expectedSquareLength - 1, startB, endB);
 
-				if (endA.getX() - startB.getX() + 1 >= expectedSquareLength) {
+				if (endA.x() - startB.x() + 1 >= expectedSquareLength) {
 					break;
 				}
 			}
@@ -115,13 +115,13 @@ class Drone : public IntCodeMachine {
 			{
 				Point<int> tmpStartA, tmpEndA, tmpStartB, tmpEndB;
 
-				int startY = startA.getY();
+				int startY = startA.y();
 
 				for (int i = startY; i > 0; i--) {
 					getLineCoords(i                           , tmpStartA, tmpEndA);
 					getLineCoords(i + expectedSquareLength - 1, tmpStartB, tmpEndB);
 
-					if (tmpEndA.getX() - tmpStartB.getX() + 1 >= expectedSquareLength) {
+					if (tmpEndA.x() - tmpStartB.x() + 1 >= expectedSquareLength) {
 						startA = tmpStartA;
 						endA   = tmpEndA;
 						startB = tmpStartB;
@@ -133,7 +133,7 @@ class Drone : public IntCodeMachine {
 				}
 			}
 
-			PRINTF(("PART_B: %d", 10000 * (startB.getX()) + startA.getY()));
+			PRINTF(("PART_B: %d", 10000 * (startB.x()) + startA.y()));
 		}
 
 	private:

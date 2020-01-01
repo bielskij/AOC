@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include "Node.h"
 #include "Edge.h"

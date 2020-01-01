@@ -65,18 +65,18 @@ class RepairRobot : public IntCodeMachine {
 			this->moveBackward = false;
 			this->position     = Point<int>(W / 2, H / 2);
 
-			this->map[this->position.getY()][this->position.getX()] = Tile::EMPTY;
-			this->mapVisited[this->position.getY()][this->position.getX()] = true;
+			this->map[this->position.y()][this->position.x()] = Tile::EMPTY;
+			this->mapVisited[this->position.y()][this->position.x()] = true;
 		}
 
 		bool onOut(int64_t value) {
 			Point<int> newPosition = this->position;
 
 			switch (this->history.top()) {
-				case Move::EAST:  newPosition.setX(newPosition.getX() + (this->moveBackward ? -1 :  1)); break;
-				case Move::WEST:  newPosition.setX(newPosition.getX() + (this->moveBackward ?  1 : -1)); break;
-				case Move::SOUTH: newPosition.setY(newPosition.getY() + (this->moveBackward ? -1 :  1)); break;
-				case Move::NORTH: newPosition.setY(newPosition.getY() + (this->moveBackward ?  1 : -1)); break;
+				case Move::EAST:  newPosition.x(newPosition.x() + (this->moveBackward ? -1 :  1)); break;
+				case Move::WEST:  newPosition.x(newPosition.x() + (this->moveBackward ?  1 : -1)); break;
+				case Move::SOUTH: newPosition.y(newPosition.y() + (this->moveBackward ? -1 :  1)); break;
+				case Move::NORTH: newPosition.y(newPosition.y() + (this->moveBackward ?  1 : -1)); break;
 			}
 
 			if (this->moveBackward) {
@@ -86,7 +86,7 @@ class RepairRobot : public IntCodeMachine {
 			switch (value) {
 				case Status::HIT_THE_WALL:
 					{
-						map[newPosition.getY()][newPosition.getX()] = Tile::WALL;
+						map[newPosition.y()][newPosition.x()] = Tile::WALL;
 
 						this->history.pop();
 					}
@@ -94,7 +94,7 @@ class RepairRobot : public IntCodeMachine {
 
 				case Status::MOVED_TO_EMPTY:
 					{
-						map[newPosition.getY()][newPosition.getX()] = Tile::EMPTY;
+						map[newPosition.y()][newPosition.x()] = Tile::EMPTY;
 
 						this->position = newPosition;
 					}
@@ -102,7 +102,7 @@ class RepairRobot : public IntCodeMachine {
 
 				case Status::MOVED_TO_OXYGEN:
 					{
-						map[newPosition.getY()][newPosition.getX()] = Tile::OXYGEN;
+						map[newPosition.y()][newPosition.x()] = Tile::OXYGEN;
 
 						this->position = newPosition;
 
@@ -125,10 +125,10 @@ class RepairRobot : public IntCodeMachine {
 			// UP
 			if (direction == Move::UNKNOWN) {
 				if (
-					(this->position.getY() > 0) &&
-					(! this->mapVisited[position.getY() - 1][position.getX()])
+					(this->position.y() > 0) &&
+					(! this->mapVisited[position.y() - 1][position.x()])
 				) {
-					this->mapVisited[position.getY() - 1][position.getX()] = true;
+					this->mapVisited[position.y() - 1][position.x()] = true;
 
 					direction = Move::NORTH;
 				}
@@ -137,10 +137,10 @@ class RepairRobot : public IntCodeMachine {
 			// East
 			if (direction == Move::UNKNOWN) {
 				if (
-					(this->position.getX() + 1 < W) &&
-					(! this->mapVisited[position.getY()][position.getX() + 1])
+					(this->position.x() + 1 < W) &&
+					(! this->mapVisited[position.y()][position.x() + 1])
 				) {
-					this->mapVisited[position.getY()][position.getX() + 1] = true;
+					this->mapVisited[position.y()][position.x() + 1] = true;
 
 					direction = Move::EAST;
 				}
@@ -149,10 +149,10 @@ class RepairRobot : public IntCodeMachine {
 			// South
 			if (direction == Move::UNKNOWN) {
 				if (
-					(this->position.getY() + 1 < H) &&
-					(! this->mapVisited[position.getY() + 1][position.getX()])
+					(this->position.y() + 1 < H) &&
+					(! this->mapVisited[position.y() + 1][position.x()])
 				) {
-					this->mapVisited[position.getY() + 1][position.getX()] = true;
+					this->mapVisited[position.y() + 1][position.x()] = true;
 
 					direction = Move::SOUTH;
 				}
@@ -161,10 +161,10 @@ class RepairRobot : public IntCodeMachine {
 			// West
 			if (direction == Move::UNKNOWN) {
 				if (
-					(this->position.getX() > 0) &&
-					(! this->mapVisited[position.getY()][position.getX() - 1])
+					(this->position.x() > 0) &&
+					(! this->mapVisited[position.y()][position.x() - 1])
 				) {
-					this->mapVisited[position.getY()][position.getX() - 1] = true;
+					this->mapVisited[position.y()][position.x() - 1] = true;
 
 					direction = Move::WEST;
 				}
@@ -206,7 +206,7 @@ class RepairRobot : public IntCodeMachine {
 				for (int x = 0; x < W; x++) {
 					char c = ' ';
 
-					if (this->position.getX() == x && this->position.getY() == y) {
+					if (this->position.x() == x && this->position.y() == y) {
 						c = 'D';
 
 					} else {
@@ -235,23 +235,23 @@ class RepairRobot : public IntCodeMachine {
 
 			Point<int> tmp;
 
-			tmp = Point<int>(p.getX() + 1, p.getY());
-			if (map[tmp.getY()][tmp.getX()] == Tile::EMPTY) {
+			tmp = Point<int>(p.x() + 1, p.y());
+			if (map[tmp.y()][tmp.x()] == Tile::EMPTY) {
 				ret.push_back(tmp);
 			}
 
-			tmp = Point<int>(p.getX() - 1, p.getY());
-			if (map[tmp.getY()][tmp.getX()] == Tile::EMPTY) {
+			tmp = Point<int>(p.x() - 1, p.y());
+			if (map[tmp.y()][tmp.x()] == Tile::EMPTY) {
 				ret.push_back(tmp);
 			}
 
-			tmp = Point<int>(p.getX(), p.getY() + 1);
-			if (map[tmp.getY()][tmp.getX()] == Tile::EMPTY) {
+			tmp = Point<int>(p.x(), p.y() + 1);
+			if (map[tmp.y()][tmp.x()] == Tile::EMPTY) {
 				ret.push_back(tmp);
 			}
 
-			tmp = Point<int>(p.getX(), p.getY() - 1);
-			if (map[tmp.getY()][tmp.getX()] == Tile::EMPTY) {
+			tmp = Point<int>(p.x(), p.y() - 1);
+			if (map[tmp.y()][tmp.x()] == Tile::EMPTY) {
 				ret.push_back(tmp);
 			}
 
@@ -261,7 +261,7 @@ class RepairRobot : public IntCodeMachine {
 		int getPartB() {
 			std::vector<Point<int>> paths;
 
-			map[partAPoint.getY()][partAPoint.getX()] = Tile::NOT_VISITED;
+			map[partAPoint.y()][partAPoint.x()] = Tile::NOT_VISITED;
 			paths.push_back(this->partAPoint);
 
 			int loops = 0;
@@ -274,7 +274,7 @@ class RepairRobot : public IntCodeMachine {
 						newPaths.push_back(children[i]);
 					}
 
-					this->map[p->getY()][p->getX()] = Tile::NOT_VISITED;
+					this->map[p->y()][p->x()] = Tile::NOT_VISITED;
 				}
 
 				paths = newPaths;

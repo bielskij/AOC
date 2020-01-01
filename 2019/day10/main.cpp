@@ -74,10 +74,10 @@ int main(int argc, char *argv[]) {
 				if (*src != *dst) {
 					Line<int> l(*src, *dst);
 
-					int minX = src->getX() < dst->getX() ? src->getX() : dst->getX();
-					int minY = src->getY() < dst->getY() ? src->getY() : dst->getY();
-					int maxX = src->getX() > dst->getX() ? src->getX() : dst->getX();
-					int maxY = src->getY() > dst->getY() ? src->getY() : dst->getY();
+					int minX = src->x() < dst->x() ? src->x() : dst->x();
+					int minY = src->y() < dst->y() ? src->y() : dst->y();
+					int maxX = src->x() > dst->x() ? src->x() : dst->x();
+					int maxY = src->y() > dst->y() ? src->y() : dst->y();
 
 					bool hasCollision = false;
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		PRINTF(("PART A: %d (%d, %d)", asteroidNumber, (int)location.getX(), (int)location.getY()));
+		PRINTF(("PART A: %d (%d, %d)", asteroidNumber, (int)location.x(), (int)location.y()));
 	}
 
 	{
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 
 		for (auto asteroid = asteroids.begin(); asteroid != asteroids.end(); asteroid++) {
 			if (*asteroid != location) {
-				vectors.push_back(Vector2D(asteroid->getY() - location.getY(), asteroid->getX() - location.getX()));
+				vectors.push_back(Vector2D(asteroid->y() - location.y(), asteroid->x() - location.x()));
 			}
 		}
 
@@ -142,8 +142,8 @@ int main(int argc, char *argv[]) {
 				}
 
 				if (idx == 200) {
-					int x = (int)(vector->getY() + location.getX());
-					int y = (int)(vector->getX() + location.getY());
+					int x = (int)(vector->getY() + location.x());
+					int y = (int)(vector->getX() + location.y());
 
 					vectors.clear();
 					PRINTF(("PART B: %d", x * 100 + y));

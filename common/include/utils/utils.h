@@ -24,7 +24,7 @@ namespace utils {
 
 	template <class T>
 	T manhattanDistance(const Point<T> &l, const Point<T> &r) {
-		return std::abs(l.getX() - r.getX()) + std::abs(l.getY() - r.getY());
+		return std::abs(l.x() - r.x()) + std::abs(l.y() - r.y());
 	}
 
 	int countSubstring(const std::string& str, const std::string& sub);

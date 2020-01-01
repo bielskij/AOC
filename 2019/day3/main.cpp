@@ -38,19 +38,19 @@ int main(int argc, char *argv[]) {
 
 				switch (ruleIt->data()[0]) {
 					case 'R':
-						end.setX(end.getX() + length);
+						end.x(end.x() + length);
 						break;
 
 					case 'L':
-						end.setX(end.getX() - length);
+						end.x(end.x() - length);
 						break;
 
 					case 'U':
-						end.setY(end.getY() + length);
+						end.y(end.y() + length);
 						break;
 
 					case 'D':
-						end.setY(end.getY() - length);
+						end.y(end.y() - length);
 						break;
 				}
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 							Point<float> intersectionPoint;
 
 							if (lineChecked->crossTrough(*lineOther, intersectionPoint)) {
-								if (intersectionPoint.getX() != 0 && intersectionPoint.getY() != 0) {
+								if (intersectionPoint.x() != 0 && intersectionPoint.y() != 0) {
 									if (std::find(intersections.begin(), intersections.end(), intersectionPoint) == intersections.end()) {
 										intersections.push_back(intersectionPoint);
 									}

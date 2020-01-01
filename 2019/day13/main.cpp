@@ -61,7 +61,7 @@ class ArcadeGame : public IntCodeMachine {
 			switch (this->state) {
 				case OUT_STATE_X:
 					{
-						this->tmp.setX(value);
+						this->tmp.x(value);
 
 						this->state = OUT_STATE_Y;
 					}
@@ -69,7 +69,7 @@ class ArcadeGame : public IntCodeMachine {
 
 				case OUT_STATE_Y:
 					{
-						this->tmp.setY(value);
+						this->tmp.y(value);
 
 						this->state = OUT_STATE_TILE;
 					}
@@ -77,11 +77,11 @@ class ArcadeGame : public IntCodeMachine {
 
 				case OUT_STATE_TILE:
 					{
-						if (this->tmp.getX() == -1) {
+						if (this->tmp.x() == -1) {
 							this->score = value;
 
 						} else {
-							this->tiles[(int)this->tmp.getY()][(int)this->tmp.getX()] = (Tile::Type)value;
+							this->tiles[(int)this->tmp.y()][(int)this->tmp.x()] = (Tile::Type)value;
 
 							if (value == Tile::TYPE_BALL) {
 								this->ball = this->tmp;
@@ -104,9 +104,9 @@ class ArcadeGame : public IntCodeMachine {
 				this->draw();
 			}
 
-			if (this->paddle.getX() > this->ball.getX()) {
+			if (this->paddle.x() > this->ball.x()) {
 				value = -1;
-			} else if (this->paddle.getX() < this->ball.getX()) {
+			} else if (this->paddle.x() < this->ball.x()) {
 				value = 1;
 			} else {
 				value = 0;
