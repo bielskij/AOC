@@ -7,57 +7,57 @@ template <class T>
 class Point {
 	public:
 		Point() {
-			this->x = 0;
-			this->y = 0;
+			this->_x = 0;
+			this->_y = 0;
 		}
 
 		Point(T x, T y) {
-			this->x = x;
-			this->y = y;
+			this->_x = x;
+			this->_y = y;
 		}
 
 		virtual ~Point() {
 		}
 
-		T getX() const {
-			return this->x;
+		T x() const {
+			return this->_x;
 		}
 
-		T getY() const {
-			return this->y;
+		T y() const {
+			return this->_y;
 		}
 
-		void setX(T x) {
-			this->x = x;
+		void x(T x) {
+			this->_x = x;
 		}
 
-		void setY(T y) {
-			this->y = y;
+		void y(T y) {
+			this->_y = y;
 		}
 
 		void set(T x, T y) {
-			this->setX(x);
-			this->setY(y);
+			this->x(x);
+			this->y(y);
 		}
 
 		void incX() {
-			this->x++;
+			this->_x++;
 		}
 
 		void decX() {
-			this->x--;
+			this->_x--;
 		}
 
 		void incY() {
-			this->y++;
+			this->_y++;
 		}
 
 		void decY() {
-			this->y--;
+			this->_y--;
 		}
 
 		bool operator==(const Point &other) {
-			return this->x == other.x && this->y == other.y;
+			return this->_x == other._x && this->_y == other._y;
 		}
 
 		bool operator!=(const Point &other) {
@@ -65,19 +65,19 @@ class Point {
 		}
 
 		Point operator+(const Point &other) {
-			return Point(this->getX() + other.getX(), this->getY() + other.getY());
+			return Point(this->x() + other.x(), this->y() + other.y());
 		}
 
 		Point &operator=(const Point &other) {
-			this->x = other.x;
-			this->y = other.y;
+			this->_x = other._x;
+			this->_y = other._y;
 
 			return *this;
 		}
 
 	private:
-		T x;
-		T y;
+		T _x;
+		T _y;
 };
 
 template <class T>
@@ -147,9 +147,9 @@ template <class T>
 class Line {
 	public:
 		Line(const Point<T> &begin, const Point<T> &end) : start(begin), end(end) {
-			this->a = end.getY() - begin.getY();
-			this->b = begin.getX() - end.getX();
-			this->c = a * begin.getX() + b * begin.getY();
+			this->a = end.y() - begin.y();
+			this->b = begin.x() - end.x();
+			this->c = a * begin.x() + b * begin.y();
 		}
 
 		float value(float x) {
@@ -158,16 +158,16 @@ class Line {
 		}
 
 		bool crossTrough(const Point<T> &p) {
-			return this->a * p.getX() + this->b * p.getY() == this->c;
+			return this->a * p.x() + this->b * p.y() == this->c;
 		}
 
 		bool crossTrough(const Line<T> &line, Point<T> &point) {
-			float uA = ((line.end.getX() - line.start.getX()) * (this->start.getY() - line.start.getY()) - (line.end.getY() - line.start.getY()) * (this->start.getX() - line.start.getX())) / ((line.end.getY() - line.start.getY()) * (this->end.getX() - this->start.getX()) - (line.end.getX() - line.start.getX()) * (this->end.getY() - this->start.getY()));
-			float uB = ((this->end.getX() - this->start.getX()) * (this->start.getY() - line.start.getY()) - (this->end.getY() - this->start.getY()) * (this->start.getX() - line.start.getX())) / ((line.end.getY() - line.start.getY()) * (this->end.getX() - this->start.getX()) - (line.end.getX() - line.start.getX()) * (this->end.getY() - this->start.getY()));
+			float uA = ((line.end.x() - line.start.x()) * (this->start.y() - line.start.y()) - (line.end.y() - line.start.y()) * (this->start.x() - line.start.x())) / ((line.end.y() - line.start.y()) * (this->end.x() - this->start.x()) - (line.end.x() - line.start.x()) * (this->end.y() - this->start.y()));
+			float uB = ((this->end.x() - this->start.x()) * (this->start.y() - line.start.y()) - (this->end.y() - this->start.y()) * (this->start.x() - line.start.x())) / ((line.end.y() - line.start.y()) * (this->end.x() - this->start.x()) - (line.end.x() - line.start.x()) * (this->end.y() - this->start.y()));
 
 			if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-				point.setX(this->start.getX() + (uA * (this->end.getX() - this->start.getX())));
-				point.setY(this->start.getY() + (uA * (this->end.getY() - this->start.getY())));
+				point.x(this->start.x() + (uA * (this->end.x() - this->start.x())));
+				point.y(this->start.y() + (uA * (this->end.y() - this->start.y())));
 
 				return true;
 			}

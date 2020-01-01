@@ -135,19 +135,19 @@ class Robot : public IntCodeMachine {
 		void moveForward() {
 			switch (this->direction) {
 				case UP:
-					this->position.setY(this->position.getY() - 1);
+					this->position.y(this->position.y() - 1);
 					break;
 
 				case DOWN:
-					this->position.setY(this->position.getY() + 1);
+					this->position.y(this->position.y() + 1);
 					break;
 
 				case LEFT:
-					this->position.setX(this->position.getX() - 1);
+					this->position.x(this->position.x() - 1);
 					break;
 
 				case RIGHT:
-					this->position.setX(this->position.getX() + 1);
+					this->position.x(this->position.x() + 1);
 					break;
 			}
 		}
@@ -233,20 +233,20 @@ int main(int argc, char *argv[]) {
 			int yMax = INT_MIN;
 
 			for (auto p = pixels.begin(); p != pixels.end(); p++) {
-				if (p->position.getX() < xMin) {
-					xMin = p->position.getX();
+				if (p->position.x() < xMin) {
+					xMin = p->position.x();
 				}
 
-				if (p->position.getX() > xMax) {
-					xMax = p->position.getX();
+				if (p->position.x() > xMax) {
+					xMax = p->position.x();
 				}
 
-				if (p->position.getY() < yMin) {
-					yMin = p->position.getY();
+				if (p->position.y() < yMin) {
+					yMin = p->position.y();
 				}
 
-				if (p->position.getY() > yMax) {
-					yMax = p->position.getY();
+				if (p->position.y() > yMax) {
+					yMax = p->position.y();
 				}
 			}
 
@@ -264,7 +264,7 @@ int main(int argc, char *argv[]) {
 			}
 
 			for (auto p = pixels.begin(); p != pixels.end(); p++) {
-				map[(int)(p->position.getY() - yOffset)][(int)(p->position.getX() - xOffset)] = p->color;
+				map[(int)(p->position.y() - yOffset)][(int)(p->position.x() - xOffset)] = p->color;
 			}
 
 			for (int y = 0; y < height; y++) {

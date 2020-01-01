@@ -74,22 +74,22 @@ class ASCII : public IntCodeMachine {
 				}
 
 				if (value == '\n') {
-					this->position.setY(this->position.getY() + 1);
+					this->position.y(this->position.y() + 1);
 
 					if (this->mode == Mode::CALIBRATE_AREA) {
-						if (this->position.getX() > this->maxX) {
-							this->maxX = this->position.getX();
+						if (this->position.x() > this->maxX) {
+							this->maxX = this->position.x();
 						}
 					}
 
-					this->position.setX(0);
+					this->position.x(0);
 
 				} else {
 					if (this->mode == Mode::CALIBRATE_CAMERA) {
-						this->cameraView[this->position.getY() * this->maxX + this->position.getX()] = value;
+						this->cameraView[this->position.y() * this->maxX + this->position.x()] = value;
 					}
 
-					this->position.setX(this->position.getX() + 1);
+					this->position.x(this->position.x() + 1);
 				}
 
 			} else if (this->mode == Mode::DUMP_MAP) {
@@ -191,7 +191,7 @@ class ASCII : public IntCodeMachine {
 			this->reset();
 			this->run();
 
-			this->maxY = this->position.getY();
+			this->maxY = this->position.y();
 
 			if (this->cameraView) {
 				delete this->cameraView;
@@ -241,8 +241,8 @@ class ASCII : public IntCodeMachine {
 			}
 
 			if (
-				(ret.getX() >= this->maxX || ret.getX() < 0) ||
-				(ret.getY() >= this->maxY || ret.getY() < 0)
+				(ret.x() >= this->maxX || ret.x() < 0) ||
+				(ret.y() >= this->maxY || ret.y() < 0)
 			) {
 				ret = Point<int>(-1, -1);
 
@@ -258,13 +258,13 @@ class ASCII : public IntCodeMachine {
 		Direction getTurnDirection(const Point<int> &src, const Point<int> &dst, Direction dir) {
 			Direction ret = Direction::LEFT;
 
-			if (dst.getY() > src.getY()) {
+			if (dst.y() > src.y()) {
 				ret = (dir == Direction::RIGHT) ? Direction::RIGHT : Direction::LEFT;
-			} else if (dst.getY() < src.getY()) {
+			} else if (dst.y() < src.y()) {
 				ret = (dir == Direction::RIGHT) ? Direction::LEFT : Direction::RIGHT;
-			} else if (dst.getX() > src.getX()) {
+			} else if (dst.x() > src.x()) {
 				ret = (dir == Direction::UP) ? Direction::RIGHT : Direction::LEFT;
-			} else if (dst.getX() < src.getX()) {
+			} else if (dst.x() < src.x()) {
 				ret = (dir == Direction::UP) ? Direction::LEFT : Direction::RIGHT;
 			}
 
@@ -281,7 +281,7 @@ class ASCII : public IntCodeMachine {
 		}
 
 		int getViewOffset(const Point<int> &p) {
-			return this->maxX * p.getY() + p.getX();
+			return this->maxX * p.y() + p.x();
 		}
 
 		std::string getOperation(const std::string &op) {
@@ -318,7 +318,7 @@ class ASCII : public IntCodeMachine {
 			int moveSteps = 0;
 			do {
 				Point<int> nextPosition = getNextPoint(currentPosition, currentDirection);
-				if (nextPosition.getX() < 0) {
+				if (nextPosition.x() < 0) {
 					if (moveSteps) {
 						operations += utils::toString(moveSteps);
 
@@ -330,7 +330,7 @@ class ASCII : public IntCodeMachine {
 					while (dir != possible.end()) {
 						nextPosition = getNextPoint(currentPosition, *dir);
 
-						if (nextPosition.getX() >= 0) {
+						if (nextPosition.x() >= 0) {
 							switch (getTurnDirection(currentPosition, nextPosition, currentDirection)) {
 								case LEFT:  operations += "L"; break;
 								case RIGHT: operations += "R"; break;
@@ -352,7 +352,7 @@ class ASCII : public IntCodeMachine {
 
 					currentPosition = nextPosition;
 				}
-			} while (currentPosition.getX() != -1);
+			} while (currentPosition.x() != -1);
 
 			PRINTF(("Operations: %s", operations.c_str()));
 
