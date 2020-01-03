@@ -34,6 +34,138 @@ struct QueueNode {
 };
 
 
+void Maze::walkMap(GraphNode *src, bool *visited) {
+	const int rowNum[] = { -1,  0, 0, 1 };
+	const int colNum[] = {  0, -1, 1, 0 };
+
+	std::queue<QueueNode> q;
+
+	visited[src->position.y() * this->mapWidth + src->position.x()] = true;
+
+	q.push(QueueNode(src->position, 0, src));
+
+	while (! q.empty()) {
+		QueueNode curr = q.front(); q.pop();
+
+		switch (this->map[curr.p.y()][curr.p.x()]) {
+			case NodeType::KEY:
+			case NodeType::DOOR:
+				{
+					int nodeId = positionToGraphId(curr.p);
+
+					if (curr.parent != this->nodes[nodeId]) {
+						this->edges.push_back(new GraphEdge(this->nodes[nodeId], curr.parent, curr.distance));
+						this->edges.push_back(new GraphEdge(curr.parent, this->nodes[nodeId], curr.distance));
+
+						curr.distance = 0;
+						curr.parent   = this->nodes[nodeId];
+					}
+				}
+				break;
+
+			case NodeType::PORTAL:
+				{
+					std::pair<GraphNode*, GraphNode *> *pair = nullptr;
+
+					if (curr.p == curr.parent->position) {
+						break;
+					}
+
+					for (auto p : this->portals) {
+						if ((p.second.first && p.second.first->position == curr.p) || (p.second.second && p.second.second->position == curr.p)) {
+							pair = &p.second;
+							break;
+						}
+					}
+
+					if (pair) {
+						GraphNode *dst = (pair->first->position == curr.p) ? pair->second : pair->first;
+						GraphNode *src = (pair->first->position == curr.p) ? pair->first  : pair->second;
+
+						// Node to portal
+						if (curr.parent->type == NodeType::EXIT) {
+							this->edges.push_back(new GraphEdge(src, curr.parent, curr.distance));
+						} else {
+							this->edges.push_back(new GraphEdge(curr.parent, src, curr.distance));
+						}
+
+						if (curr.parent->type == NodeType::PORTAL) {
+							this->edges.push_back(new GraphEdge(src, curr.parent, curr.distance));
+						}
+
+						// If destination is known go trough the portal
+						if (dst && ! visited[dst->position.y() * this->mapWidth + dst->position.x()]) {
+							DBG(("Add edge: %p (%d), %p (%d)", src, src->id(), dst, dst->id()));
+
+							// Both direction
+							this->edges.push_back(new GraphEdge(src, dst, 1));
+							this->edges.push_back(new GraphEdge(dst, src, 1));
+
+							curr.distance = 0;
+							curr.p        = dst->position;
+							curr.parent   = dst;
+
+							visited[dst->position.y() * this->mapWidth + dst->position.x()] = true;
+						}
+					}
+				}
+				break;
+
+			case NodeType::ENTRANCE:
+				{
+					int nodeId = positionToGraphId(curr.p);
+
+					if (curr.parent != this->nodes[nodeId]) {
+						DBG(("Add edge: %p (%d), %p (%d)", curr.parent, curr.parent->id(), this->nodes[nodeId], this->nodes[nodeId]->id()));
+
+						this->edges.push_back(new GraphEdge(this->nodes[nodeId], curr.parent, curr.distance));
+
+						curr.distance = 0;
+						curr.parent   = this->nodes[nodeId];
+					}
+				}
+				break;
+
+			case NodeType::EXIT:
+				{
+					int nodeId = positionToGraphId(curr.p);
+
+					if (curr.parent != this->nodes[nodeId]) {
+						DBG(("Add edge: %p (%d), %p (%d)", curr.parent, curr.parent->id(), this->nodes[nodeId], this->nodes[nodeId]->id()));
+
+						this->edges.push_back(new GraphEdge(curr.parent, this->nodes[nodeId], curr.distance));
+
+						curr.distance = 0;
+						curr.parent   = this->nodes[nodeId];
+					}
+				}
+				break;
+
+			default:
+				break;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int x = curr.p.x() + colNum[i];
+			int y = curr.p.y() + rowNum[i];
+
+			if (
+				isValidPoint(x, y) &&
+				! visited[y * this->mapWidth + x] &&
+				(
+					this->map[y][x] != NodeType::EMPTY &&
+					this->map[y][x] != NodeType::WALL
+				)
+			) {
+				visited[y * this->mapWidth + x] = true;
+
+				q.push(QueueNode(Point<int>(x, y), curr.distance + 1, curr.parent));
+			}
+		}
+	}
+}
+
+
 bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks) {
 	bool ret = true;
 
@@ -50,23 +182,29 @@ bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks
 		this->map[i] = new NodeType[this->mapWidth];
 	}
 
+	this->edges.clear();
+	this->nodes.clear();
+
 	for (int row = 0; row < map.size(); row++) {
 		for (int col = 0; col < map[row].length(); col++) {
 			Point<int> p(col, row);
 
-			this->map[row][col] = callbacks.getNodeType(p, map[row][col]);
+			int      graphId = this->positionToGraphId(p);
+			NodeType nodeType = callbacks.getNodeType(p, map[row][col]);
 
-			switch (this->map[row][col]) {
+			switch (nodeType) {
 				case NodeType::PORTAL:
 					{
-						std::string id = callbacks.getId(p, map[row][col], this->map[row][col]);
+						std::string id = callbacks.getId(p, map[row][col], nodeType);
 
-						if (this->map[row][col] == NodeType::PORTAL) {
-							if (this->portals.find(id) == this->portals.end()) {
-								this->portals[id].first  = p;
-							} else {
-								this->portals[id].second = p;
-							}
+						// Add node
+						this->nodes[graphId] = new GraphNode(graphId, p, nodeType);
+
+						// Make connection between portal endpoints
+						if (this->portals[id].first == nullptr) {
+							this->portals[id].first  = this->nodes[graphId];
+						} else {
+							this->portals[id].second = this->nodes[graphId];
 						}
 					}
 					break;
@@ -74,19 +212,22 @@ bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks
 				case NodeType::KEY:
 				case NodeType::DOOR:
 					{
-						ERR(("TODO: IMPLEMENT"));
-					}
-					break;
+						std::string id = callbacks.getId(p, map[row][col], nodeType);
 
-				case NodeType::ENTRANCE:
-					{
-						this->entrance = p;
+						this->nodes[graphId] = new GraphNode(graphId, p, nodeType);
+
+						if (nodeType == NodeType::KEY) {
+							this->keyDoor[id].first  = this->nodes[graphId];
+						} else {
+							this->keyDoor[id].second = this->nodes[graphId];
+						}
 					}
 					break;
 
 				case NodeType::EXIT:
+				case NodeType::ENTRANCE:
 					{
-						this->exit = p;
+						this->nodes[graphId] = new GraphNode(graphId, p, nodeType);
 					}
 					break;
 
@@ -95,111 +236,45 @@ bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks
 				case NodeType::WALL:
 					break;
 			}
+
+			this->map[row][col] = nodeType;
 		}
-	}
-
-	this->edges.clear();
-	this->nodes.clear();
-
-	// Add entrance node
-	if (this->map[this->entrance.y()][this->entrance.x()] == NodeType::ENTRANCE) {
-		this->nodes[positionToGraphId(this->entrance)] = new GraphNode(positionToGraphId(this->entrance), this->entrance, NodeType::ENTRANCE);
 	}
 
 	{
-		bool visited[this->mapHeight][this->mapWidth];
-
-		const int rowNum[] = { -1,  0, 0, 1};
-		const int colNum[] = {  0, -1, 1, 0};
+		bool visited[this->mapHeight * this->mapWidth];
 
 		for (int y = 0; y < this->mapHeight; y++) {
 			for (int x = 0; x < this->mapWidth; x++) {
-				visited[y][x] = false;
+				visited[y * this->mapWidth + x] = false;
 			}
 		}
 
-		visited[this->entrance.y()][this->entrance.x()] = true;
-
-		std::queue<QueueNode> q;
-
-		q.push(QueueNode(this->entrance, 0, this->nodes[positionToGraphId(this->entrance)]));
-
-		while (! q.empty()) {
-			QueueNode curr = q.front(); q.pop();
-
-//			DBG(("Current: (%d, %d)", curr.p.x(), curr.p.y()));
-
-			switch (this->map[curr.p.y()][curr.p.x()]) {
-				// TODO: Add support for door/key pair
-				case NodeType::PORTAL:
-					{
-						std::pair<Point<int>, Point<int>> *pair = nullptr;
-
-						for (auto p : this->portals) {
-							if (p.second.first == curr.p || p.second.second == curr.p) {
-								pair = &p.second;
-								break;
-							}
-						}
-
-						if (pair) {
-							Point<int> dest = pair->first == curr.p ? pair->second : pair->first;
-
-							if (! visited[dest.y()][dest.x()]) {
-								int nodeId = positionToGraphId(dest);
-								if (this->nodes[nodeId] == nullptr) {
-									this->nodes[nodeId] = new GraphNode(nodeId, dest, NodeType::PORTAL);
-								}
-
-								DBG(("Add edge: %p (%d), %p (%d)", curr.parent, curr.parent->id(), this->nodes[nodeId], this->nodes[nodeId]->id()));
-
-								this->edges.push_back(new GraphEdge(curr.parent, this->nodes[nodeId], curr.distance));
-
-								curr.distance = 1;
-								curr.p        = dest;
-								curr.parent   = this->nodes[nodeId];
-
-								visited[dest.y()][dest.x()] = true;
-							}
-						}
-					}
-					break;
-
-				case NodeType::EXIT:
-					{
-						int nodeId = positionToGraphId(curr.p);
-						if (this->nodes[nodeId] == nullptr) {
-							this->nodes[nodeId] = new GraphNode(nodeId, curr.p, NodeType::EXIT);
-						}
-
-						DBG(("Add edge: %p (%d), %p (%d)", curr.parent, curr.parent->id(), this->nodes[nodeId], this->nodes[nodeId]->id()));
-
-						this->edges.push_back(new GraphEdge(curr.parent, this->nodes[nodeId], curr.distance));
-
-						curr.distance = 0;
-						curr.parent   = this->nodes[nodeId];
-					}
-					break;
-
-				default:
-					break;
+		GraphNode *src = this->getEntrance();
+		if (! src) {
+			if (! this->nodes.empty()) {
+				src = this->nodes.begin()->second;
 			}
+		}
 
-			for (int i = 0; i < 4; i++) {
-				int x = curr.p.x() + colNum[i];
-				int y = curr.p.y() + rowNum[i];
+		std::vector<GraphNode *> toVisit;
 
-				if (
-					isValidPoint(x, y) &&
-					! visited[y][x] &&
-					(
-						this->map[y][x] != NodeType::EMPTY &&
-						this->map[y][x] != NodeType::WALL
-					)
-				) {
-					visited[y][x] = true;
+		for (auto n : this->nodes) {
+			toVisit.push_back(n.second);
+		}
 
-					q.push(QueueNode(Point<int>(x, y), curr.distance + 1, curr.parent));
+		while (src) {
+			this->walkMap(src, visited);
+
+			src = nullptr;
+
+			if (! toVisit.empty()) {
+				src = *toVisit.begin(); toVisit.erase(toVisit.begin());
+
+				for (int y = 0; y < this->mapHeight; y++) {
+					for (int x = 0; x < this->mapWidth; x++) {
+						visited[y * this->mapWidth + x] = false;
+					}
 				}
 			}
 		}
@@ -208,9 +283,17 @@ bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks
 
 //		for (int y = 0; y < this->mapHeight; y++) {
 //			for (int x = 0; x < this->mapWidth; x++) {
-//				printf("%c", visited[y][x] ? 'x' : ' ');
+//				printf("%c", visited[y * mapWidth + x] ? 'x' : ' ');
 //			}
 //			printf("\n");
+//		}
+//
+//		for (auto &n : this->nodes) {
+//			DBG(("Node: %d", n.second->id()));
+//		}
+//
+//		for (auto &e : this->edges) {
+//			DBG(("Edge: %d - %d (%f)", e->from()->id(), e->to()->id(), e->cost()));
 //		}
 	}
 
@@ -219,35 +302,39 @@ bool Maze::parse(const std::vector<std::string> &map, const Callbacks &callbacks
 
 
 Maze::GraphNode *Maze::getEntrance() {
-	int nodeId = positionToGraphId(this->entrance);
+	GraphNode *ret = nullptr;
 
-	if (this->nodes.find(nodeId) != this->nodes.end()) {
-		return this->nodes[nodeId];
+	for (auto &n : this->nodes) {
+		if (n.second->type == NodeType::ENTRANCE) {
+			ret = n.second;
+			break;
+		}
 	}
 
-	return nullptr;
+	return ret;
 }
 
 
 Maze::GraphNode *Maze::getExit() {
-	int nodeId = positionToGraphId(this->exit);
+	GraphNode *ret = nullptr;
 
-	if (this->nodes.find(nodeId) != this->nodes.end()) {
-		return this->nodes[nodeId];
+	for (auto &n : this->nodes) {
+		if (n.second->type == NodeType::EXIT) {
+			ret = n.second;
+			break;
+		}
 	}
 
-	return nullptr;
+	return ret;
 }
 
 
 void Maze::fillGraph(graph::Graph &graph) {
 	for (auto &n : this->nodes) {
-		DBG(("Node: %d", n.second->id()));
 		graph.addNode(n.second);
 	}
 
 	for (auto &e : this->edges) {
-		DBG(("Edge: %d - %d (%f)", e->from()->id(), e->to()->id(), e->cost()));
 		graph.addValidEdge(e);
 	}
 }
@@ -273,16 +360,57 @@ void Maze::draw() {
 }
 
 
-int Maze::positionToGraphId(const Point<int> &position) {
+int Maze::positionToGraphId(const Point<int> &position) const {
 	return position.y() * this->yMultiplier + position.x();
 }
 
 
-Point<int> Maze::graphIdToPosition(int graphId) {
+Point<int> Maze::graphIdToPosition(int graphId) const {
 	return Point<int>(graphId % this->yMultiplier, graphId / this->yMultiplier);
 }
 
 
 bool Maze::isValidPoint(int x, int y) {
 	return ((x >= 0) && (x < this->mapWidth)) && ((y >= 0) && (y < this->mapHeight));
+}
+
+
+std::vector<Maze::GraphNode *> Maze::getNodes(NodeType type) {
+	std::vector<GraphNode *> ret;
+
+	for (auto n : this->nodes) {
+		if ((n.second->type & type) != 0) {
+			ret.push_back(n.second);
+		}
+	}
+
+	return ret;
+}
+
+
+std::vector<Maze::GraphEdge *> Maze::getEdges() {
+	return this->edges;
+}
+
+
+std::string Maze::getId(GraphNode *node, NodeType type) const {
+	std::string ret;
+
+	Point<int> position = this->graphIdToPosition(node->id());
+	if (this->map[position.y()][position.x()] == type) {
+		auto &list =
+			(type == NodeType::PORTAL) ? this->portals :
+			(type == NodeType::KEY)    ? this->keyDoor :
+			(type == NodeType::DOOR)   ? this->keyDoor :
+				std::map<std::string, std::pair<GraphNode *, GraphNode *>>();
+
+		for (const auto &p : list) {
+			if ((p.second.first && p.second.first->position == position) || (p.second.second && p.second.second->position == position)) {
+				ret = p.first;
+				break;
+			}
+		}
+	}
+
+	return ret;
 }

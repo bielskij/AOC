@@ -56,11 +56,11 @@ class Point {
 			this->_y--;
 		}
 
-		bool operator==(const Point &other) {
+		bool operator==(const Point &other) const {
 			return this->_x == other._x && this->_y == other._y;
 		}
 
-		bool operator!=(const Point &other) {
+		bool operator!=(const Point &other) const {
 			return !(*this == other);
 		}
 

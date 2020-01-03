@@ -24,13 +24,9 @@ namespace graph {
 						this->cost = cost;
 					}
 
-					bool operator<(const NodeCost &other) {
-						return (this->cost < other.cost);
-					}
-
 				struct Comparator {
 					bool operator()(const NodeCost &lhs, const NodeCost &rhs) {
-						return lhs.cost < rhs.cost;
+						return lhs.cost > rhs.cost;
 					}
 				};
 			};
@@ -61,7 +57,7 @@ namespace graph {
 			double getCost(Node *node) {
 				auto it = graphCostToNode.find(node);
 				if (it == graphCostToNode.end()) {
-					return std::numeric_limits<double>::max();
+					return std::numeric_limits<float>::max();
 				}
 
 				return it->second;
