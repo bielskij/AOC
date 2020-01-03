@@ -50,6 +50,10 @@ namespace graph {
 				this->nodesFirst = false;
 			}
 
+			virtual ~Graph() {
+
+			}
+
 			void addNode(Node *node) {
 				this->nodes[node->id()] = node;
 
@@ -203,11 +207,11 @@ namespace graph {
 				return getEdge(from, to) != nullptr;
 			}
 
-			std::vector<Edge *> &getEdgeList(int nodeID) {
+			virtual std::vector<Edge *> &getEdgeList(int nodeID) {
 				return getEdgeList(nodes[nodeID]);
 			}
 
-			std::vector<Edge *> &getEdgeList(Node *node) {
+			virtual std::vector<Edge *> &getEdgeList(Node *node) {
 				return this->edgeLists[node];
 			}
 

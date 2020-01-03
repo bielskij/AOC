@@ -7,16 +7,18 @@
 class Maze {
 	public:
 		enum NodeType {
-			EMPTY,
+			EMPTY    = 1 << 0,
 
-			WALL,
-			PASSAGE,
-			ENTRANCE,
-			EXIT,
+			WALL     = 1 << 1,
+			PASSAGE  = 1 << 2,
+			ENTRANCE = 1 << 3,
+			EXIT     = 1 << 4,
 
-			PORTAL,
-			KEY,
-			DOOR
+			PORTAL   = 1 << 5,
+			KEY      = 1 << 6,
+			DOOR     = 1 << 7,
+
+			ALL = 0xffffffff
 		};
 
 		struct GraphNode : public graph::Node {
@@ -36,6 +38,9 @@ class Maze {
 		};
 
 		struct Callbacks {
+			virtual ~Callbacks() {
+			}
+
 			// Maps node type form char
 			virtual NodeType getNodeType(const Point<int> &pos, char c) const = 0;
 
@@ -50,15 +55,22 @@ class Maze {
 		bool parse(const std::vector<std::string> &map, const Callbacks &callbacks);
 		void draw();
 
-		GraphNode *getEntrance();
-		GraphNode *getExit();
 		void fillGraph(graph::Graph &graph);
 
+		GraphNode *getEntrance();
+		GraphNode *getExit();
+		std::vector<GraphNode *> getNodes(NodeType type = NodeType::ALL);
+		std::vector<GraphEdge *> getEdges();
+
+		std::string getId(GraphNode *node, NodeType type) const;
+
 	private:
-		int positionToGraphId(const Point<int> &position);
-		Point<int> graphIdToPosition(int graphId);
+		int positionToGraphId(const Point<int> &position) const;
+		Point<int> graphIdToPosition(int graphId) const;
 
 		bool isValidPoint(int x, int y);
+
+		void walkMap(GraphNode *src, bool *visited);
 
 	private:
 		int        mapWidth;
@@ -66,13 +78,11 @@ class Maze {
 		NodeType **map;
 		int yMultiplier;
 
-		std::map<std::string, std::pair<Point<int>, Point<int>>> portals;
+		std::map<std::string, std::pair<GraphNode *, GraphNode *>> portals;
+		std::map<std::string, std::pair<GraphNode *, GraphNode *>> keyDoor;
 
 		std::map<int, GraphNode *> nodes;
 		std::vector<GraphEdge *>   edges;
-
-		Point<int>   entrance;
-		Point<int>   exit;
 };
 
 #endif /* UTILS_MAZE_H_ */
