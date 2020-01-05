@@ -18,11 +18,13 @@
 #include "common/debug.h"
 
 
-struct CallbacksPartA : public Maze::Callbacks {
+struct CallbacksPart : public Maze::Callbacks {
 	std::vector<std::string> *map;
+	bool partA;
 
-	CallbacksPartA(std::vector<std::string> *map) {
-		this->map = map;
+	CallbacksPart(std::vector<std::string> *map, bool partA) {
+		this->map   = map;
+		this->partA = partA;
 	}
 
 	virtual Maze::NodeType getNodeType(const Point<int> &pos, char c) const {
@@ -30,7 +32,28 @@ struct CallbacksPartA : public Maze::Callbacks {
 
 		switch (c) {
 			case '.':
-				ret = Maze::NodeType::PASSAGE;
+				if (this->partA) {
+					ret = Maze::NodeType::PASSAGE;
+
+				} else {
+					if (
+						(this->map->at(pos.y() + 1).at(pos.x()    ) == '@') ||
+						(this->map->at(pos.y() - 1).at(pos.x()    ) == '@') ||
+						(this->map->at(pos.y()    ).at(pos.x() + 1) == '@') ||
+						(this->map->at(pos.y()    ).at(pos.x() - 1) == '@')
+					) {
+						ret = Maze::NodeType::WALL;
+					} else if (
+						(this->map->at(pos.y() + 1).at(pos.x() + 1) == '@') ||
+						(this->map->at(pos.y() + 1).at(pos.x() - 1) == '@') ||
+						(this->map->at(pos.y() - 1).at(pos.x() + 1) == '@') ||
+						(this->map->at(pos.y() - 1).at(pos.x() - 1) == '@')
+					) {
+						ret = Maze::NodeType::KEY;
+					} else {
+						return Maze::NodeType::PASSAGE;
+					}
+				}
 				break;
 
 			case '#':
@@ -38,75 +61,11 @@ struct CallbacksPartA : public Maze::Callbacks {
 				break;
 
 			case '@':
-				ret = Maze::NodeType::KEY;
-				break;
-
-			default:
-				if (c >= 'A' && c <= 'Z') {
-					ret = Maze::NodeType::DOOR;
-
-				} else if (c >= 'a' && c <= 'z') {
+				if (this->partA) {
 					ret = Maze::NodeType::KEY;
-
 				} else {
-					ret = Maze::NodeType::EMPTY;
-				}
-		}
-
-		return ret;
-	}
-
-	virtual std::string getId(const Point<int> &pos, char c, Maze::NodeType type) const {
-		std::string ret;
-
-		if (c == '@') {
-			ret.push_back('1');
-		} else {
-			ret.push_back(std::toupper(c));
-		}
-
-		return ret;
-	}
-};
-
-
-struct CallbacksPartB : public Maze::Callbacks {
-	std::vector<std::string> *map;
-
-	CallbacksPartB(std::vector<std::string> *map) {
-		this->map = map;
-	}
-
-	virtual Maze::NodeType getNodeType(const Point<int> &pos, char c) const {
-		Maze::NodeType ret;
-
-		switch (c) {
-			case '.':
-				if (
-					(this->map->at(pos.y() + 1).at(pos.x()    ) == '@') ||
-					(this->map->at(pos.y() - 1).at(pos.x()    ) == '@') ||
-					(this->map->at(pos.y()    ).at(pos.x() + 1) == '@') ||
-					(this->map->at(pos.y()    ).at(pos.x() - 1) == '@')
-				) {
 					ret = Maze::NodeType::WALL;
-				} else if (
-					(this->map->at(pos.y() + 1).at(pos.x() + 1) == '@') ||
-					(this->map->at(pos.y() + 1).at(pos.x() - 1) == '@') ||
-					(this->map->at(pos.y() - 1).at(pos.x() + 1) == '@') ||
-					(this->map->at(pos.y() - 1).at(pos.x() - 1) == '@')
-				) {
-					ret = Maze::NodeType::KEY;
-				} else {
-					return Maze::NodeType::PASSAGE;
 				}
-				break;
-
-			case '#':
-				ret = Maze::NodeType::WALL;
-				break;
-
-			case '@':
-				ret = Maze::NodeType::WALL;
 				break;
 
 			default:
@@ -127,17 +86,26 @@ struct CallbacksPartB : public Maze::Callbacks {
 	virtual std::string getId(const Point<int> &pos, char c, Maze::NodeType type) const {
 		std::string ret;
 
-		if (this->map->at(pos.y() + 1).at(pos.x() + 1) == '@') {
-			ret = '1';
-		} else if (this->map->at(pos.y() + 1).at(pos.x() - 1) == '@') {
-			ret = '2';
-		} else if (this->map->at(pos.y() - 1).at(pos.x() + 1) == '@') {
-			ret = '3';
-		} else if (this->map->at(pos.y() - 1).at(pos.x() - 1) == '@') {
-			ret = '4';
+		if (this->partA) {
+			if (c == '@') {
+				ret.push_back('1');
+			} else {
+				ret.push_back(std::toupper(c));
+			}
 
 		} else {
-			ret.push_back(std::toupper(c));
+			if (this->map->at(pos.y() + 1).at(pos.x() + 1) == '@') {
+				ret = '2';
+			} else if (this->map->at(pos.y() + 1).at(pos.x() - 1) == '@') {
+				ret = '1';
+			} else if (this->map->at(pos.y() - 1).at(pos.x() + 1) == '@') {
+				ret = '3';
+			} else if (this->map->at(pos.y() - 1).at(pos.x() - 1) == '@') {
+				ret = '4';
+
+			} else {
+				ret.push_back(std::toupper(c));
+			}
 		}
 
 		return ret;
@@ -158,48 +126,34 @@ struct KeyRoute {
 };
 
 
-void dfs(char key, int keys, int allKeys, std::map<char, std::map<char, KeyRoute>> &keyToKeyMap, char *route, int depth, int cost, int *minCost) {
-	route[depth] = key;
+struct RobotsContext {
+	char key[4];
+	int  keys;
 
-	cost += keyToKeyMap[route[depth - 1]][route[depth]].cost;
+	std::vector<char> routes[4];
 
-	if (key != '1') {
-		keys |= (1 << (key - 'A'));
+	RobotsContext(char a, char b, char c, char d, int keys) {
+		this->key[0] = a;
+		this->key[1] = b;
+		this->key[2] = c;
+		this->key[3] = d;
+
+		this->keys = keys;
 	}
 
-	if (keys == allKeys) {
-		if (cost < *minCost) {
-			*minCost = cost;
-		}
+	RobotsContext(char a, char b, char c, char d, int keys, const std::vector<char> routes[4]) {
+		this->key[0] = a;
+		this->key[1] = b;
+		this->key[2] = c;
+		this->key[3] = d;
 
-//		for (int i = 0; i <= depth; i++) {
-//			printf("%c, ", route[i]);
-//		}
-//		printf("\n");
-		return;
-	}
+		this->keys = keys;
 
-	for (auto &next : keyToKeyMap[key]) {
-		if ((keys & (1 << (next.first - 'A'))) == 0) {
-			bool haveAllKeys = true;
-
-			// Check if already have key set for crossed doors
-			if ((next.second.doors & keys) != next.second.doors) {
-				haveAllKeys = false;
-			}
-
-			if (haveAllKeys) {
-				if ((next.second.keysOnRoute & keys) != next.second.keysOnRoute) {
-					haveAllKeys = false;
-				}
-			}
-
-			if (haveAllKeys) {
-				dfs(next.first, keys, allKeys, keyToKeyMap, route, depth + 1, cost, minCost);
-			}
+		for (int i = 0; i < 4; i++) {
+			this->routes[i] = routes[i];
 		}
 	}
-}
+};
 
 
 static void dumpkeyMap(std::map<char, std::map<char, KeyRoute>> &keyToKeyMap) {
@@ -320,20 +274,154 @@ void mazeToKeyToKeyMap(Maze &maze, std::map<char, std::map<char, KeyRoute>> &key
 }
 
 
+bool nextAllowed(int keys, char key, const KeyRoute &l) {
+	if ((keys & (1 << (key - 'A'))) == 0) {
+		bool haveAllKeys = true;
+
+		// Check if already have key set for crossed doors
+		if ((l.doors & keys) != l.doors) {
+			haveAllKeys = false;
+		}
+
+		if (haveAllKeys) {
+			if ((l.keysOnRoute & keys) != l.keysOnRoute) {
+				haveAllKeys = false;
+			}
+		}
+
+		if (haveAllKeys) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+void dfs(char key, int keys, int allKeys, std::map<char, std::map<char, KeyRoute>> &keyToKeyMap, char *route, int depth, int cost, int *minCost) {
+	route[depth] = key;
+
+	cost += keyToKeyMap[route[depth - 1]][route[depth]].cost;
+
+	if (key != '1') {
+		keys |= (1 << (key - 'A'));
+	}
+
+	if (keys == allKeys) {
+		if (cost < *minCost) {
+			*minCost = cost;
+		}
+
+		return;
+	}
+
+	for (auto &next : keyToKeyMap[key]) {
+		if (nextAllowed(keys, next.first, next.second)) {
+			dfs(next.first, keys, allKeys, keyToKeyMap, route, depth + 1, cost, minCost);
+		}
+	}
+}
+
+
+void dfs2(char key[4], int keys, int allKeys, std::map<char, std::map<char, KeyRoute>> &keyToKeyMap, int cost, int *minCost) {
+	for (int i = 0; i < 4; i++) {
+		if (key[i] >= 'A' && key[i] <= 'Z') {
+			keys |= (1 << (key[i] - 'A'));
+		}
+	}
+
+	if (keys == allKeys) {
+		if (cost < *minCost) {
+			*minCost = cost;
+		}
+
+		return;
+	}
+
+	{
+		std::vector<char> next1;
+
+		next1.push_back(key[0]);
+		for (auto &next : keyToKeyMap[key[0]]) {
+			if (nextAllowed(keys, next.first, next.second)) {
+				next1.push_back(next.first);
+			}
+		}
+
+		for (auto next1Entry : next1) {
+			std::vector<char> next2;
+
+			next2.push_back(key[1]);
+			for (auto &next : keyToKeyMap[key[1]]) {
+				if (nextAllowed(keys | (1 << (next1Entry - 'A')), next.first, next.second)) {
+					next2.push_back(next.first);
+				}
+			}
+
+			for (auto next2Entry : next2) {
+				std::vector<char> next3;
+
+				next3.push_back(key[2]);
+				for (auto &next : keyToKeyMap[key[2]]) {
+					if (nextAllowed(keys | (1 << (next1Entry - 'A')) | (1 << (next2Entry - 'A')), next.first, next.second)) {
+						next3.push_back(next.first);
+					}
+				}
+
+				for (auto next3Entry : next3) {
+					bool anyAdded = false;
+
+					char nextKeys[4];
+					int  constCost = 0;
+
+					nextKeys[0] = next1Entry;
+					nextKeys[1] = next2Entry;
+					nextKeys[2] = next3Entry;
+
+					for (int i = 0; i < 3; i++) {
+						if (key[i] != nextKeys[i]) {
+							constCost += keyToKeyMap[key[i]][nextKeys[i]].cost;
+						}
+					}
+
+					for (auto &next : keyToKeyMap[key[3]]) {
+						if (nextAllowed(keys | (1 << (next1Entry - 'A')) | (1 << (next2Entry - 'A')) | (1 << (next3Entry - 'A')), next.first, next.second)) {
+							nextKeys[3] = next.first;
+
+							dfs2(nextKeys, keys, allKeys, keyToKeyMap, cost + constCost + keyToKeyMap[key[3]][nextKeys[3]].cost, minCost);
+
+							anyAdded = true;
+						}
+					}
+
+					if (! anyAdded) {
+						if (next1Entry != key[0] || next2Entry != key[1] || next3Entry != key[2]) {
+							nextKeys[3] = key[3];
+
+							dfs2(nextKeys, keys, allKeys, keyToKeyMap, cost + constCost, minCost);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
 int main(int argc, char *argv[]) {
 	std::vector<std::string> mapString = File::readAllLines(argv[1]);
 
 	{
 		Maze maze;
 
-		maze.parse(mapString, CallbacksPartA(&mapString));
-		//	maze.draw();
+		maze.parse(mapString, CallbacksPart(&mapString, true));
+//		maze.draw();
 
 		std::map<char, std::map<char, KeyRoute>> keyToKeyMap;
 
 		mazeToKeyToKeyMap(maze, keyToKeyMap);
 
-		dumpkeyMap(keyToKeyMap);
+//		dumpkeyMap(keyToKeyMap);
 
 		{
 			char route[25];
@@ -345,19 +433,30 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	exit(1);
 	{
 		Maze maze;
 
-		maze.parse(mapString, CallbacksPartB(&mapString));
-		maze.draw();
-
+		maze.parse(mapString, CallbacksPart(&mapString, false));
+//		maze.draw();
 
 		std::map<char, std::map<char, KeyRoute>> keyToKeyMap;
 
 		mazeToKeyToKeyMap(maze, keyToKeyMap);
 
-		dumpkeyMap(keyToKeyMap);
+//		dumpkeyMap(keyToKeyMap);
 
+		char key[4];
+
+		key[0] = '1';
+		key[1] = '2';
+		key[2] = '3';
+		key[3] = '4';
+
+		int minKey = std::numeric_limits<int>::max();
+		std::vector<char> routes[4];
+
+		dfs2(key, 0, (1 << (maze.getNodes(Maze::NodeType::KEY).size() - 4)) - 1, keyToKeyMap, 0, &minKey);
+
+		PRINTF(("PART_B: %d", minKey));
 	}
 }
