@@ -36,7 +36,7 @@ namespace utils {
 	std::string trim(const std::string &src, const std::string &chars);
 
 	template <class T>
-	T nwd(T a, T b) {
+	T gcd(T a, T b) {
 		while(a != b)
 			if(a > b)
 				a -= b;
@@ -44,6 +44,26 @@ namespace utils {
 				b -= a;
 
 		return a;
+	}
+
+	template <class T>
+	T gcd_ext(T a, T b, T &x, T &y) {
+		if (a == 0) {
+			x = 0;
+			y = 1;
+
+			return b;
+		}
+
+		T x1;
+		T y1;
+
+		T gcdVal = gcd_ext(b % a, a, x1, y1);
+
+		x = y1 - (b / a) * x1;
+		y = x1;
+
+		return gcdVal;
 	}
 
 	template <class T>
