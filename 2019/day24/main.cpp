@@ -87,6 +87,102 @@ struct Tile {
 };
 
 
+int getBugsCount(Tile grid[GRID_SIZE], Tile &bkpGrid, int index, int x, int y) {
+	int bugsCount = 0;
+
+	if (! (y == 2 && x == 2)) {
+		if (y == 0 && x == 0) {
+			if (bkpGrid.isBug(2, 1))     bugsCount++;
+			if (bkpGrid.isBug(1, 2))     bugsCount++;
+			if (grid[index].isBug(1, 0)) bugsCount++;
+			if (grid[index].isBug(0, 1)) bugsCount++;
+
+		} else if (y == 0 && x == 4) {
+			if (bkpGrid.isBug(2, 1))     bugsCount++;
+			if (bkpGrid.isBug(3, 2))     bugsCount++;
+			if (grid[index].isBug(3, 0)) bugsCount++;
+			if (grid[index].isBug(4, 1)) bugsCount++;
+
+		} else if (y == 4 && x == 0) {
+			if (bkpGrid.isBug(2, 3))     bugsCount++;
+			if (bkpGrid.isBug(1, 2))     bugsCount++;
+			if (grid[index].isBug(1, 4)) bugsCount++;
+			if (grid[index].isBug(0, 3)) bugsCount++;
+
+		} else if (y == 4 && x == 4) {
+			if (bkpGrid.isBug(2, 3))     bugsCount++;
+			if (bkpGrid.isBug(3, 2))     bugsCount++;
+			if (grid[index].isBug(3, 4)) bugsCount++;
+			if (grid[index].isBug(4, 3)) bugsCount++;
+
+		} else if (y == 0) {
+			if (bkpGrid.isBug(2, 1))             bugsCount++;
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+
+		} else if (y == 4) {
+			if (bkpGrid.isBug(2, 3))             bugsCount++;
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+
+		} else if (x == 0) {
+			if (bkpGrid.isBug(1, 2))             bugsCount++;
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+
+		} else if (x == 4) {
+			if (bkpGrid.isBug(3, 2))             bugsCount++;
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+
+		} else if (y == 1 && x == 2) {
+			for (int i = 0; i < Tile::W; i++) {
+				if (grid[index + 1].isBug(i, 0)) bugsCount++;
+			}
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+
+		} else if (y == 2 && x == 1) {
+			for (int i = 0; i < Tile::H; i++) {
+				if (grid[index + 1].isBug(0, i)) bugsCount++;
+			}
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+
+		} else if (y == 2 && x == 3 ) {
+			for( int i = 0; i < 5; i++  ) {
+				if (grid[index + 1].isBug(4, i)) bugsCount++;
+			}
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+
+		} else if (y == 3 && x == 2) {
+			for (int i = 0; i < 5; i++) {
+				if (grid[index + 1].isBug(i, 4)) bugsCount++;
+			}
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+
+		} else {
+			if (grid[index].isBug(x    , y - 1)) bugsCount++;
+			if (grid[index].isBug(x    , y + 1)) bugsCount++;
+			if (grid[index].isBug(x - 1, y    )) bugsCount++;
+			if (grid[index].isBug(x + 1, y    )) bugsCount++;
+		}
+	}
+
+	return bugsCount;
+}
+
+
 int main(int argc, char *argv[]) {
 	Tile map(File::readAllLines(argv[1]));
 
@@ -149,6 +245,46 @@ int main(int argc, char *argv[]) {
 	}
 
 	{
+		int startLayer = 200;
 
+		Tile grid[GRID_SIZE];
+
+		grid[startLayer] = map;
+
+		for (int i = 0; i < 200; i++) {
+			Tile bkpGrid;
+
+			for (int j = 0; j < 403; j++) {
+				Tile newGrid = grid[j];
+
+				for (int y = 0; y < Tile::H; y++) {
+					for (int x = 0; x < Tile::W; x++) {
+						int bugsCount = getBugsCount(grid, bkpGrid, j, x, y);
+
+						if (grid[j].isBug(x, y) && bugsCount != 1) {
+							newGrid.clear(x, y);
+
+						} else if (! grid[j].isBug(x, y) && (bugsCount == 1 || bugsCount == 2)) {
+							newGrid.set(x, y);
+						}
+					}
+				}
+
+				bkpGrid = grid[j];
+
+				grid[j] = newGrid;
+			}
+		}
+
+		int bugs = 0;
+		for (auto &g : grid) {
+			for (int y = 0; y < Tile::H; y++) {
+				for (int x = 0; x < Tile::W; x++) {
+					bugs += g.isBug(x, y);
+				}
+			}
+		}
+
+		PRINTF(("PART_B: %d", bugs));
 	}
 }
