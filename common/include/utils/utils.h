@@ -79,6 +79,7 @@ namespace utils {
 	void genPermutation(std::vector<std::vector<T>> &out, std::vector<T> &in) {
 		int c[in.size()] = { 0 };
 
+		out.clear();
 		out.push_back(in);
 
 		int i = 0;
