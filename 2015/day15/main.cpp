@@ -18,20 +18,21 @@ struct Recipe {
 };
 
 
-void _iterate(std::vector<std::pair<std::string, Recipe>> &recipes, int *val, int valSize, int rest, int depth, int &max) {
+void _iterate(std::vector<std::pair<std::string, Recipe>> &recipes, int *val, int valSize, int rest, int depth, int &partA, int &partB) {
 	if (depth < valSize - 1) {
 		for (int i = 0; i <= rest; i++) {
 			val[depth] = i;
 
-			_iterate(recipes, val, valSize, rest - i, depth + 1, max);
+			_iterate(recipes, val, valSize, rest - i, depth + 1, partA, partB);
 		}
 
 	} else {
 		int score = 1;
+		bool itemPartB = false;
 
 		val[depth] = rest;
 
-		for (int j = 0; j < 4; j++) {
+		for (int j = 0; j < 5; j++) {
 			int sum = 0;
 
 			for (int i = 0; i < valSize; i++) {
@@ -41,11 +42,25 @@ void _iterate(std::vector<std::pair<std::string, Recipe>> &recipes, int *val, in
 			if (sum < 0) {
 				sum = 0;
 			}
-			score *= sum;
+
+			if (j != 4) {
+				score *= sum;
+
+			} else {
+				if (sum == 500) {
+					itemPartB = true;
+				}
+			}
 		}
 
-		if (score > max) {
-			max = score;
+		if (score > partA) {
+			partA = score;
+		}
+
+		if (itemPartB) {
+			if (score > partB) {
+				partB = score;
+			}
 		}
 	}
 }
@@ -73,12 +88,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	{
-		int maxScore = 0;
+		int partA = 0;
+		int partB = 0;
 
 		int factors[ingreedients.size()];
 
-		_iterate(ingreedients, factors, ingreedients.size(), 100, 0, maxScore);
+		_iterate(ingreedients, factors, ingreedients.size(), 100, 0, partA, partB);
 
-		PRINTF(("PART_A: %d", maxScore));
+		PRINTF(("PART_A: %d", partA));
+		PRINTF(("PART_B: %d", partB));
 	}
 }
