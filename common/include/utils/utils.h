@@ -104,6 +104,33 @@ namespace utils {
 		}
 	}
 
+	template <class T>
+	void genKCombinationUtil(const std::vector<T> &arr, std::vector<std::vector<T>> &out, T *tmp, int start, int end, int index, int r) {
+		if (index == r) {
+			std::vector<T> comb;
+
+			for (int j = 0; j < r; j++)
+				comb.push_back(tmp[j]);
+
+			out.push_back(comb);
+
+			return;
+		}
+
+		for (int i = start; i <= end && end - i + 1 >= r - index; i++) {
+			tmp[index] = arr[i];
+			genKCombinationUtil(arr, out, tmp, i + 1, end, index + 1, r);
+		}
+	}
+
+
+	template <class T>
+	void genKCombination(const std::vector<T> &arr, int r, std::vector<std::vector<T>> &out) {
+		T tmp[arr.size()];
+
+		genKCombinationUtil(arr, out, tmp, 0, arr.size() - 1, 0, r);
+	}
+
 	uint64_t llrand(uint64_t max);
 }
 
