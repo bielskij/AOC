@@ -133,6 +133,35 @@ namespace utils {
 		genKCombinationUtil(arr, out, tmp, 0, arr.size() - 1, 0, r);
 	}
 
+	template <class T>
+	void genCombinationSumUtil(int l, T sum, T K, std::vector<T> &local, std::vector<T> &A, std::vector<std::vector<T>> &out) {
+		if (sum == K) {
+			out.push_back(local);
+
+			return;
+		}
+
+		for (int i = l; i < A.size(); i++) {
+			if (sum + A[i] > K)
+				continue;
+
+			local.push_back(A[i]);
+
+			genCombinationSumUtil(i + 1, sum + A[i], K, local, A, out);
+
+			local.pop_back();
+		}
+	}
+
+	template <class T>
+	void genCombinationSum(std::vector<T> A, T sum, std::vector<std::vector<T>> &out) {
+		sort(A.begin(), A.end());
+
+		std::vector<T> local;
+
+		genCombinationSumUtil(0, 0, sum, local, A, out);
+	}
+
 	uint64_t llrand(uint64_t max);
 }
 
