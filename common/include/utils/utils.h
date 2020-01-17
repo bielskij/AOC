@@ -35,6 +35,8 @@ namespace utils {
 	std::string rtrim(const std::string &src, const std::string &chars);
 	std::string trim(const std::string &src, const std::string &chars);
 
+	std::string string(const char *format, ...);
+
 	template <class T>
 	T gcd(T a, T b) {
 		while(a != b)
