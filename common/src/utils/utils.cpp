@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <unistd.h>
-
+#include <cstdarg>
 
 #include "utils/utils.h"
 
@@ -114,6 +114,19 @@ std::string utils::rtrim(const std::string &src, const std::string &chars) {
 
 std::string utils::trim(const std::string &src, const std::string &chars) {
 	return rtrim(ltrim(src, chars), chars);
+}
+
+
+std::string utils::string(const char *format, ...) {
+	va_list        ap;
+	const uint32_t bufferSize = 1024;
+	char           buffer[bufferSize];
+
+	va_start(ap, format);
+	vsnprintf(buffer, bufferSize, format, ap);
+	va_end(ap);
+
+	return std::string(buffer);
 }
 
 
