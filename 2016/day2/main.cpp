@@ -23,7 +23,7 @@ static char valuesB[] = {
 
 
 static char getValueA(const Point<int> &pos) {
-	if (pos.x() >= 3 || pos.y() >= 3) {
+	if (pos.x() < 0 || pos.x() >= 3 || pos.y() < 0 || pos.y() >= 3) {
 		return 0;
 	}
 
@@ -32,7 +32,7 @@ static char getValueA(const Point<int> &pos) {
 
 
 static char getValueB(const Point<int> &pos) {
-	if (pos.x() >= 5 || pos.y() >= 5) {
+	if (pos.x() < 0 || pos.x() >= 5 || pos.y() < 0 || pos.y() >= 5) {
 		return 0;
 	}
 
