@@ -17,9 +17,11 @@ int main(int argc, char *argv[]) {
 	auto data = File::readAllLines(argv[1]);
 
 	int partA = 0;
+	int partB = 0;
 
 	for (auto &line : data) {
 		std::map<char, int> letterMap;
+		std::string encrypted;
 		std::string checksum;
 		int id = 0;
 
@@ -27,14 +29,18 @@ int main(int argc, char *argv[]) {
 		for (auto c : line) {
 			switch (mode) {
 				case MODE_NAME:
-					if (c != '-') {
-						if (std::isdigit(c)) {
+					{
+						if (! std::isdigit(c)) {
+							encrypted += c;
+
+							if (c != '-') {
+								letterMap[c]++;
+							}
+
+						} else {
 							id = c - '0';
 
 							mode = MODE_ID;
-
-						} else {
-							letterMap[c]++;
 						}
 					}
 					break;
@@ -57,24 +63,40 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		PRINTF(("lettermap: %zd, id: %d, chksum: '%s'", letterMap.size(), id, checksum.c_str()));
-
-		if (letterMap.size() >= 5) {
+		// Part A
+		{
 			bool correct = true;
 
-			std::vector<std::pair<char, int>> pairs;
-			for (auto &p : letterMap) {
-				pairs.push_back(p);
+			if (letterMap.size() < 5) {
+				correct = false;
 			}
 
-			// Sort descending
-			sort(pairs.begin(), pairs.end(), [=](std::pair<char, int>& a, std::pair<char, int>& b) {
-				return a.second > b.second;
-			});
+			if (correct) {
+				if (checksum.size() != 5) {
+					correct = false;
+				}
+			}
 
 			if (correct) {
+				std::vector<std::pair<char, int>> pairs;
+				for (auto &p : letterMap) {
+					pairs.push_back(p);
+				}
+
+				// Sort descending
+				sort(pairs.begin(), pairs.end(), [=](std::pair<char, int>& a, std::pair<char, int>& b) {
+					if (a.second > b.second) {
+						return true;
+
+					} else if (a.second == b.second) {
+						return a.first < b.first;
+					}
+
+					return false;
+				});
+
 				for (int i = 0; i < 5; i++) {
-					if (checksum.find(pairs[i].first, 0) == std::string::npos) {
+					if (checksum[i] != pairs[i].first) {
 						correct = false;
 						break;
 					}
@@ -82,38 +104,30 @@ int main(int argc, char *argv[]) {
 			}
 
 			if (correct) {
-				int max = std::numeric_limits<int>::max();
-
-				for (int i = 0; i < checksum.size(); i++) {
-					char c = checksum[i];
-
-					if (letterMap[c] < max) {
-						max = letterMap[c];
-
-					} else if (letterMap[c] == max) {
-						if (checksum[i - 1] >= c) {
-							correct = false;
-							break;
-						}
-
-					} else {
-						correct = false;
-						break;
-					}
-				}
-			}
-
-			if (correct) {
-				PRINTF(("%s - > correct", line.c_str()));
-
 				partA += id;
+			}
+		}
 
-			} else {
-				PRINTF(("%s - > incorrect", line.c_str()));
+		{
+			int total = 'z' - 'a' + 1;
+
+			std::string decrypted;
+
+			for (auto c : encrypted) {
+				if (c == '-') {
+					decrypted += ' ';
+
+				} else {
+					decrypted.push_back((((c - 'a') + id) % total) + 'a');
+				}
+			}
+
+			if (decrypted.find("northpole") != std::string::npos) {
+				partB = id;
 			}
 		}
 	}
 
-	// 224769 - za mała
 	PRINTF(("PART_A: %d", partA));
+	PRINTF(("PART_B: %d", partB));
 }
