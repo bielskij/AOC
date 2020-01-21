@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <climits>
+#include <cstring>
 #include <set>
 #include <algorithm>
 
@@ -14,7 +15,27 @@
 #include "common/debug.h"
 
 
-static char _getLetter(const std::string &prefix, int &idx) {
+char bin2char(char v) {
+	if (v > 9) {
+		return v - 10 + 'a';
+
+	} else {
+		return v + '0';
+	}
+}
+
+
+char char2bin(char v) {
+	if (v >= 'a') {
+		return 10 + (v - 'a');
+
+	} else {
+		return v - '0';
+	}
+}
+
+
+static std::pair<char, char> _getLetter(const std::string &prefix, int &idx) {
 	char buffer[128];
 	int bufferWritten;
 
@@ -37,26 +58,64 @@ static char _getLetter(const std::string &prefix, int &idx) {
 		idx++;
 	} while (1);
 
-	char ret = (mdBuffer[2] & 0x0f);
-	if (ret > 9) {
-		ret = ret - 10 + 'a';
-	} else {
-		ret = ret + '0';
-	}
+	std::pair<char, char> ret;
+
+	ret.first  = bin2char (mdBuffer[2] & 0x0f);
+	ret.second = bin2char((mdBuffer[3] & 0xf0) >> 4);
 
 	return ret;
 }
 
 
 int main(int argc, char *argv[]) {
-	std::string password;
+	{
+		std::string partA;
 
-	int idx = 0;
-	for (int i = 0; i < 8; i++) {
-		password.push_back(_getLetter(argv[1], idx));
+		int idx = 0;
+		for (int i = 0; i < 8; i++) {
+			auto val = _getLetter(argv[1], idx);
 
-		idx++;
+			partA.push_back(val.first);
+
+			idx++;
+		}
+
+		PRINTF(("PART_A: %s", partA.c_str()));
 	}
 
-	PRINTF(("PART_A: %s", password.c_str()));
+	{
+		char partB[8];
+
+		memset(partB, -1, sizeof(partB));
+
+		int idx = 0;
+		while (true) {
+			bool anyUnknown = false;
+
+			for (int i = 0; i < 8; i++) {
+				printf("%c", partB[i] == -1 ? '_' : partB[i]);
+
+				if (partB[i] == -1) {
+					anyUnknown = true;
+				}
+			}
+			printf("\n");
+
+			if (! anyUnknown) {
+				break;
+			}
+
+			auto val = _getLetter(argv[1], idx);
+			char bin = char2bin(val.first);
+			if (bin < 8) {
+				if (partB[bin] == -1) {
+					partB[bin] = val.second;
+				}
+			}
+
+			idx++;
+		}
+
+		PRINTF(("PART_B: %s", std::string(partB, sizeof(partB)).c_str()));
+	}
 }
