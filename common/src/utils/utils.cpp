@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <cstdarg>
 
+#include <openssl/md5.h>
+
 #include "utils/utils.h"
 
 
@@ -141,6 +143,48 @@ uint64_t utils::llrand(uint64_t max) {
 	};
 
 	return num % max;
+}
+
+
+static char _hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+
+std::string utils::toHex(const void *buffer, size_t bufferSize) {
+	std::string ret;
+
+	if (bufferSize > 0) {
+		const uint8_t *ptr = reinterpret_cast<const uint8_t *>(buffer);
+
+		ret.reserve(bufferSize * 2);
+
+		for (size_t i = 0; i < bufferSize; i++) {
+			ret.push_back(_hex[ptr[i] >> 4]);
+			ret.push_back(_hex[ptr[i] & 0x0f]);
+		}
+	}
+
+	return ret;
+}
+
+
+std::string utils::md5(const void *buffer, size_t bufferSize, bool toHexString) {
+	std::string ret;
+
+	ret.reserve(MD5_DIGEST_LENGTH);
+
+	{
+		unsigned char mdBuffer[MD5_DIGEST_LENGTH];
+
+		MD5((const unsigned char *) buffer, bufferSize, mdBuffer);
+
+		ret.assign((char *) mdBuffer, MD5_DIGEST_LENGTH);
+
+		if (toHexString) {
+			ret = toHex(ret.data(), ret.length());
+		}
+	}
+
+	return ret;
 }
 
 

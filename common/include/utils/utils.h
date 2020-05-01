@@ -163,6 +163,10 @@ namespace utils {
 	}
 
 	uint64_t llrand(uint64_t max);
+
+	std::string toHex(const void *buffer, size_t bufferSize);
+
+	std::string md5(const void *buffer, size_t bufferSize, bool toHexString);
 }
 
 #endif /* UTILS_UTILS_H_ */
