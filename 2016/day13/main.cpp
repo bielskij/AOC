@@ -10,73 +10,102 @@
 #include "common/debug.h"
 
 
-class MazeGenerator : public Maze::Callbacks {
-	private:
-		static constexpr char CHAR_WALL     = '#';
-		static constexpr char CHAR_PASSAGE  = '.';
-		static constexpr char CHAR_ENTRANCE = 'E';
-		static constexpr char CHAR_EXIT     = 'X';
-
+class Main {
 	public:
-		MazeGenerator(int favNumber, int exitX, int exitY) {
+		Main(int favNumber, const Point<int> &entrance, const Point<int> &exit) : _start(entrance), _end(exit) {
 			this->_favNumber = favNumber;
-			this->_endX      = exitX;
-			this->_endY      = exitY;
-			this->_width     = exitX * 2;
-			this->_height    = exitY * 2;
+		}
 
-			this->_strRepr.reserve(this->_height);
+		void execute() {
+			const int rowNum[] = { -1,  0, 0, 1 };
+			const int colNum[] = {  0, -1, 1, 0 };
 
-			for (int y = 0; y < this->_height; y++) {
-				std::string row;
+			bool visited[this->height() * this->width()]{ false };
 
-				for (int x = 0; x < this->_width; x++) {
-					row.push_back(getType(x, y));
+			struct Node {
+				Point<int> pos;
+				int distance;
+
+				Node(const Point<int> &p, int distance) : pos(p) {
+					this->distance = distance;
+				}
+			};
+
+			this->_partA = 0;
+			this->_partB = 0;
+
+			std::queue<Node> q;
+
+			visited[this->_start.y() * this->width() + this->_start.x()] = true;
+
+			q.push(Node(this->_start, 0));
+
+			while (! q.empty()) {
+				Node curr = q.front(); q.pop();
+
+				if (curr.pos == this->_end) {
+					this->_partA = curr.distance;
 				}
 
-				this->_strRepr.push_back(row);
-			}
-		}
-
-		const std::vector<std::string> getStringReprezentation() const {
-			return this->_strRepr;
-		}
-
-		void dump(FILE *out) {
-			for (auto &row : this->_strRepr) {
-				for (auto c : row) {
-					fprintf(out, "%c", c);
+				if (curr.distance <= 50) {
+					this->_partB++;
 				}
-				fprintf(out, "\n");
+
+				for (int i = 0; i < 4; i++) {
+					Point<int> next(curr.pos.x() + colNum[i], curr.pos.y() + rowNum[i]);
+
+					if (
+						pointInRange(next) &&
+						! visited[next.y() * this->width() + next.x()] &&
+						! isWall(next)
+					) {
+						visited[next.y() * this->width() + next.x()] = true;
+
+						q.push(Node(next, curr.distance + 1));
+					}
+				}
 			}
 		}
 
-		// Maps node type form char
-		Maze::NodeType getNodeType(const Point<int> &pos, char c) const {
-			switch (c) {
-				case CHAR_PASSAGE:
-					return Maze::NodeType::PASSAGE;
+		int getPartA() const {
+			return this->_partA;
+		}
 
-				case CHAR_WALL:
-					return Maze::NodeType::WALL;
+		int getPartB() const {
+			return this->_partB;
+		}
 
-				case CHAR_ENTRANCE:
-					return Maze::NodeType::ENTRANCE;
+	protected:
+		int width() const {
+			return this->_end.x() * 2;
+		}
 
-				case CHAR_EXIT:
-					return Maze::NodeType::EXIT;
+		int height() const {
+			return this->_end.y() * 2;
+		}
+
+		bool pointInRange(const Point<int> &p) {
+			if (
+				(p.x() >= 0 && p.x() <= this->width()) &&
+				(p.y() >= 0 && p.y() <= this->height())
+			) {
+				return true;
 			}
 
-			return Maze::NodeType::EMPTY;
+			return false;
 		}
 
-		// Returns identifier for logical object pair like key/door or portals
-		std::string getId(const Point<int> &pos, char c, Maze::NodeType type) const {
-			return "";
+		bool isWall(const Point<int> &p) const {
+			int val =  p.x() * p.x() + 3 * p.x() + 2 * p.x() * p.y() + p.y() + p.y() * p.y() + this->_favNumber;
+
+			if (getBitsCount(val) & 1) {
+				return true;
+			}
+
+			return false;
 		}
 
-	private:
-		int getBitsCount(int val) {
+		static int getBitsCount(int val) {
 			int c;
 
 			for (c = 0; val; c++) {
@@ -86,60 +115,21 @@ class MazeGenerator : public Maze::Callbacks {
 			return c;
 		}
 
-		char getType(int x, int y) {
-			if (x == this->_endX && y == this->_endY) {
-				return CHAR_EXIT;
-
-			} else if (x == 1 && y == 1) {
-				return CHAR_ENTRANCE;
-
-			} else {
-				int val =  x * x + 3 * x + 2 * x * y + y + y * y + this->_favNumber;
-
-				if (getBitsCount(val) & 1) {
-					return CHAR_WALL;
-
-				} else {
-					return CHAR_PASSAGE;
-				}
-			}
-		}
-
 	private:
-		int _favNumber;
-		int _width;
-		int _height;
-		int _endX;
-		int _endY;
+		int        _favNumber;
+		Point<int> _start;
+		Point<int> _end;
 
-		std::vector<std::string> _strRepr;
+		int _partA;
+		int _partB;
 };
 
 
 int main(int argc, char *argv[]) {
-	MazeGenerator gen(utils::toInt(argv[1]), utils::toInt(argv[2]), utils::toInt(argv[3]));
+	Main m(utils::toInt(argv[1]), Point<int>(1, 1), Point<int>(utils::toInt(argv[2]), utils::toInt(argv[3])));
 
-	gen.dump(stdout);
+	m.execute();
 
-	{
-		Maze maze;
-
-		maze.parse(gen.getStringReprezentation(), gen);
-
-		graph::Graph graph;
-		maze.fillGraph(graph);
-
-		std::vector<graph::Node *> route;
-
-		graph::GraphSearchDijkstra dijkstra(&graph);
-
-		dijkstra.search(maze.getEntrance()->id(), maze.getExit()->id(), route);
-
-		int cost = 0;
-		for (int i = 1; i < route.size(); i++) {
-			cost += graph.getEdge(route[i - 1]->id(), route[i]->id())->cost();
-		}
-
-		PRINTF(("PART_A: %zd", cost));
-	}
+	PRINTF(("PART_A: %d", m.getPartA()));
+	PRINTF(("PART_B: %d", m.getPartB()));
 }
