@@ -188,6 +188,11 @@ std::string utils::md5(const void *buffer, size_t bufferSize, bool toHexString) 
 }
 
 
+std::string utils::md5(const std::string &str, bool toHexString) {
+	return md5(str.data(), str.length(), toHexString);
+}
+
+
 void utils::genCombinationsUtil(std::vector<std::vector<int> > &combinations, std::vector<int> &tmp, int n, int left, int k) {
 	if (k == 0) {
 		combinations.push_back(tmp);

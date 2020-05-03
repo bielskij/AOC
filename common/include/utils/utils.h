@@ -167,6 +167,7 @@ namespace utils {
 	std::string toHex(const void *buffer, size_t bufferSize);
 
 	std::string md5(const void *buffer, size_t bufferSize, bool toHexString);
+	std::string md5(const std::string &str, bool toHexString);
 }
 
 #endif /* UTILS_UTILS_H_ */
