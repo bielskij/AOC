@@ -168,6 +168,10 @@ namespace utils {
 
 	std::string md5(const void *buffer, size_t bufferSize, bool toHexString);
 	std::string md5(const std::string &str, bool toHexString);
+
+	// Chinese remainder theorem
+	// std::pair<num, rem>
+	int64_t getMinXCRD(const std::vector<std::pair<int64_t, int64_t>> &data);
 }
 
 #endif /* UTILS_UTILS_H_ */

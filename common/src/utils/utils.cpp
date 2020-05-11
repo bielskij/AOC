@@ -215,3 +215,28 @@ void utils::genCombinations(std::vector<std::vector<int>> &out, int n, int k) {
 
 	genCombinationsUtil(out, tmp, n, 1, k);
 }
+
+
+int64_t utils::getMinXCRD(const std::vector<std::pair<int64_t, int64_t>> &data) {
+	int x = 1;
+
+	// As per the Chinese remainder theorem,
+	// this loop will always break.
+	while (true) {
+		int j;
+
+		for (j = 0; j < data.size(); j++) {
+			if (x % data[j].first != data[j].second) {
+				break;
+			}
+		}
+
+		if (j == data.size()) {
+			return x;
+		}
+
+		x++;
+	}
+
+	return x;
+}
