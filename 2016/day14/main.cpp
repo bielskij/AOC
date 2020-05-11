@@ -7,8 +7,8 @@
 #include "common/debug.h"
 
 
-int main(int argc, char *argv[]) {
-	std::string salt = argv[1];
+int solve(const std::string &salt, int hashCount) {
+	int ret = -1;
 
 	std::vector<std::pair<char, int>> tripplets;
 	std::map<char, std::vector<int>>  fifthlets;
@@ -22,7 +22,10 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < 1000; i++) {
 			bool threeFound = false;
 
-			hash = utils::md5(salt + utils::toString(counter), true);
+			hash = salt + utils::toString(counter);
+			for (int h = 0; h < hashCount; h++) {
+				hash = utils::md5(hash, true);
+			}
 
 			for (int j = 0; j < hash.size() - 2; j++) {
 				char c = hash[j];
@@ -102,7 +105,7 @@ int main(int argc, char *argv[]) {
 					keyCount++;
 
 					if (keyCount == 64) {
-						PRINTF(("PART_A: %d", t.second));
+						ret = t.second;
 						endloop = true;
 					}
 				}
@@ -113,4 +116,14 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+
+	return ret;
+}
+
+
+int main(int argc, char *argv[]) {
+	std::string salt = argv[1];
+
+	PRINTF(("PART_A: %d", solve(salt, 1)));
+	PRINTF(("PART_B: %d", solve(salt, 2017)));
 }
