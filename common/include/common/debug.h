@@ -38,11 +38,16 @@
 	#define DBG(x) do { } while (0);
 #endif
 
+#define ASSERT(x) { if (!(x)) { PRINTF(("ASSERT (%s:%d) ! (" # x") != TRUE", __FILE__, __LINE__)); abort(); } }
+
 #else
 #define ERR(x) do { } while (0);
 #define WRN(x) do { } while (0);
 #define LOG(x) do { } while (0);
 #define DBG(x) do { } while (0);
+
+#define ASSERT(x) do { } while (0);
+
 #endif
 
 #define PRINTF(x) { printf x; printf("\n"); }
