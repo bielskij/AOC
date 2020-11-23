@@ -24,6 +24,8 @@ void Computer::reset() {
 
 
 Computer::Computer() {
+	this->breakpoint = -1;
+
 	this->reset();
 }
 
@@ -153,11 +155,32 @@ int Computer::run(const std::vector<std::string> &_code) {
 		} else if (toks[0] == "nop") {
 			this->pc++;
 
+		} else if (toks[0] == "out") {
+			this->onOut(isReg(toks[1]) ? this->reg[toReg(toks[1])] : utils::toInt(toks[1]));
+
+			this->pc++;
+
 		} else {
 			ERR(("Not supported opcode '%s'!", toks[0].c_str()));
 			abort();
 		}
+
+		if (this->breakpoint >= 0) {
+			if (this->pc == this->breakpoint) {
+				throw BreakpointException();
+			}
+		}
 	}
 
 	return this->reg[0];
+}
+
+
+void Computer::onOut(int val) {
+	PRINTF(("%lld\n", val));
+}
+
+
+void Computer::setBreakpoint(int pc) {
+	this->breakpoint = pc;
 }
