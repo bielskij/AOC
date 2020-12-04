@@ -31,6 +31,7 @@ namespace utils {
 	int countSubstring(const std::string& str, const std::string& sub);
 
 	bool isNumber(const std::string& s);
+	bool isHex(const std::string &s);
 
 	std::string ltrim(const std::string &src, const std::string &chars);
 	std::string rtrim(const std::string &src, const std::string &chars);
