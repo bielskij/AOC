@@ -100,6 +100,14 @@ bool utils::isNumber(const std::string& s) {
 }
 
 
+bool utils::isHex(const std::string &s) {
+	std::string::const_iterator it = s.begin();
+
+	while (it != s.end() && std::isxdigit(*it)) ++it;
+
+	return !s.empty() && it == s.end();
+}
+
 std::string utils::ltrim(const std::string &src, const std::string &chars) {
 	size_t start = src.find_first_not_of(chars);
 
