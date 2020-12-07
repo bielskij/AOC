@@ -243,6 +243,29 @@ namespace graph {
 				this->nodesToBe.clear();
 			}
 
+			void getLeafs(std::vector<Node *> &nodes) {
+				std::vector<Edge *> edges;
+
+				nodes.clear();
+
+				this->getAllEdges(edges);
+
+				for (auto &node : this->nodes) {
+					bool isLeaf = true;
+
+					for (auto &edge : edges) {
+						if (edge->to() == node.second) {
+							isLeaf = false;
+							break;
+						}
+					}
+
+					if (isLeaf) {
+						nodes.push_back(node.second);
+					}
+				}
+			}
+
 		protected:
 			void rememberFloatingEdge(int id, FloatingEdge *floatEdge){
 				this->nodesToBe[id].push_back(floatEdge);
