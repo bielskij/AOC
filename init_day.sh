@@ -37,10 +37,14 @@ echo "" >> ${file}
 echo "	return 0;" >> ${file}
 echo "}" >> ${file}
 
-curl --silent --fail https://adventofcode.com/${year}/day/${day}/input -o ${dayDir}/data.txt
-if [ $? -ne 0 ]; then
-	echo "Cannot download input data for day ${day} of year ${year}"
-	rm -f ${dayDir}/data.txt
+if [ ! -e $DIR/cookie.txt ]; then
+	echo "No cookie file present! No input data will be downloaded!"
+else
+	curl --silent -L --cookie $DIR/cookie.txt --fail https://adventofcode.com/${year}/day/${day}/input -o ${dayDir}/data.txt
+	if [ $? -ne 0 ]; then
+		echo "Cannot download input data for day ${day} of year ${year}"
+		rm -f ${dayDir}/data.txt
+	fi
 fi
 
 cd ${dayDir}
