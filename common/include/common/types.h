@@ -2,6 +2,7 @@
 #define COMMON_TYPES_H_
 
 #include <cmath>
+#include <vector>
 
 template <class T>
 class Point {
@@ -146,6 +147,12 @@ class Point3d {
 template <class T>
 class Line {
 	public:
+		Line (T x1, T y1, T x2, T y2) : start(x1, y1), end(x2, y2) {
+			this->a = end.y() - start.y();
+			this->b = start.x() - end.x();
+			this->c = a * start.x() + b * start.y();
+		}
+
 		Line(const Point<T> &begin, const Point<T> &end) : start(begin), end(end) {
 			this->a = end.y() - begin.y();
 			this->b = begin.x() - end.x();
@@ -181,6 +188,35 @@ class Line {
 
 		Point<T> getEnd() const {
 			return this->end;
+		}
+
+		void bresenham(std::vector<Point<T>> &path) const {
+			T dx =  std::abs(end.x() - start.x()), sx = start.x() < end.x() ? 1 : -1;
+			T dy = -std::abs(end.y() - start.y()), sy = start.y() < end.y() ? 1 : -1;
+			T err = dx + dy;
+			T e2;
+
+			Point<T> curr = start;
+			for (;;) {
+				path.push_back(curr);
+
+				if (curr == end) {
+					break;
+				}
+
+				e2 = 2 * err;
+
+				if (e2 >= dy) {
+					err += dy;
+					curr.x(curr.x() + sx);
+				}
+
+				if (e2 <= dx) {
+					err += dx;
+
+					curr.y(curr.y() + sy);
+				}
+			}
 		}
 
 	private:
