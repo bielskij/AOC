@@ -44,7 +44,7 @@ class Packet {
 			return this->version;
 		}
 
-		virtual uint32_t getValue() const {
+		virtual uint64_t getValue() const {
 			DBG(("Packet::%s(): CALL", __func__));
 			return 0;
 		}
@@ -111,8 +111,8 @@ class LiteralValuePacket : public Packet {
 			return this->length;
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = 0;
+		virtual uint64_t getValue() const {
+			uint64_t ret = 0;
 
 			DBG(("LiteralValuePacket::%s(): CALL", __func__));
 
@@ -200,11 +200,6 @@ class OperatorPacket : public Packet {
 			return ret;
 		}
 
-		virtual uint32_t getValue() const {
-			DBG(("OperatorPacket::%s(): CALL", __func__));
-			return 0;
-		}
-
 		const std::vector<Packet *> &getSubpackets() const {
 			return this->subPackets;
 		}
@@ -223,8 +218,8 @@ class SumPacket : public OperatorPacket {
 		SumPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = 0;
+		virtual uint64_t getValue() const {
+			uint64_t ret = 0;
 
 			DBG(("SumPacket::%s(): CALL", __func__));
 
@@ -245,8 +240,8 @@ class ProductPacket : public OperatorPacket {
 		ProductPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = 1;
+		virtual uint64_t getValue() const {
+			uint64_t ret = 1;
 
 			DBG(("ProductPacket::%s(): CALL", __func__));
 
@@ -267,13 +262,13 @@ class MinimumPacket : public OperatorPacket {
 		MinimumPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = UINT32_MAX;
+		virtual uint64_t getValue() const {
+			uint64_t ret = UINT64_MAX;
 
 			DBG(("MinimumPacket::%s(): CALL", __func__));
 
 			for (auto pkt : this->getSubpackets()) {
-				uint32_t pktValue = pkt->getValue();
+				uint64_t pktValue = pkt->getValue();
 
 				if (ret > pktValue) {
 					ret = pktValue;
@@ -293,13 +288,13 @@ class MaximumPacket : public OperatorPacket {
 		MaximumPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = 0;
+		virtual uint64_t getValue() const {
+			uint64_t ret = 0;
 
 			DBG(("MaximumPacket::%s(): CALL", __func__));
 
 			for (auto pkt : this->getSubpackets()) {
-				uint32_t pktValue = pkt->getValue();
+				uint64_t pktValue = pkt->getValue();
 
 				if (ret < pktValue) {
 					ret = pktValue;
@@ -319,8 +314,8 @@ class GreaterThanPacket : public OperatorPacket {
 		GreaterThanPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = this->getSubpackets()[0]->getValue() > this->getSubpackets()[1]->getValue();
+		virtual uint64_t getValue() const {
+			uint64_t ret = this->getSubpackets()[0]->getValue() > this->getSubpackets()[1]->getValue();
 
 			DBG(("GreaterThanPacket::%s(): CALL", __func__));
 
@@ -337,8 +332,8 @@ class LessThanPacket : public OperatorPacket {
 		LessThanPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = this->getSubpackets()[0]->getValue() < this->getSubpackets()[1]->getValue();
+		virtual uint64_t getValue() const {
+			uint64_t ret = this->getSubpackets()[0]->getValue() < this->getSubpackets()[1]->getValue();
 
 			DBG(("LessThanPacket::%s(): CALL", __func__));
 
@@ -355,8 +350,8 @@ class EqualPacket : public OperatorPacket {
 		EqualPacket(const Packet &base) : OperatorPacket(base) {
 		}
 
-		virtual uint32_t getValue() const {
-			uint32_t ret = this->getSubpackets()[0]->getValue() == this->getSubpackets()[1]->getValue();
+		virtual uint64_t getValue() const {
+			uint64_t ret = this->getSubpackets()[0]->getValue() == this->getSubpackets()[1]->getValue();
 
 			DBG(("EqualPacket::%s(): CALL", __func__));
 
@@ -470,7 +465,7 @@ int main(int argc, char *argv[]) {
 				PRINTF(("PART_A: %u", partA));
 			}
 
-			PRINTF(("PART_B: %u", packets[0]->getValue()));
+			PRINTF(("PART_B: %lu", packets[0]->getValue()));
 		}
 	}
 
