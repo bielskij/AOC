@@ -28,6 +28,11 @@ namespace utils {
 		return std::abs(l.x() - r.x()) + std::abs(l.y() - r.y());
 	}
 
+	template <class T>
+	T manhattanDistance(const Point3d<T> &l, const Point3d<T> &r) {
+		return std::abs(l.x() - r.x()) + std::abs(l.y() - r.y()) + std::abs(l.z() - r.z());
+	}
+
 	int countSubstring(const std::string& str, const std::string& sub);
 
 	bool isNumber(const std::string& s);
