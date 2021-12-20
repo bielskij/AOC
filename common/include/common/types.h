@@ -99,12 +99,24 @@ class Point3d {
 		virtual ~Point3d() {
 		}
 
+		T x() const {
+			return this->n[0];
+		}
+
 		T getX() const {
 			return this->n[0];
 		}
 
+		T y() const {
+			return this->n[1];
+		}
+
 		T getY() const {
 			return this->n[1];
+		}
+
+		T z() const {
+			return this->n[2];
 		}
 
 		T getZ() const {
@@ -131,12 +143,24 @@ class Point3d {
 			this->n[idx] = v;
 		}
 
-		bool operator==(const Point3d &other) {
-			return (this->n[0] == other.n[0]) && (this->n[1] == other.n[1]) && (this->n[2] == other.n[2]);
+		Point3d<T> vector(const Point3d<T> &dst) const {
+			return Point3d<T>(
+				dst.x() - this->x(),
+				dst.y() - this->y(),
+				dst.z() - this->z()
+			);
 		}
 
-		bool operator!=(const Point3d &other) {
+		bool operator==(const Point3d<T> &other) const {
+			return (this->x() == other.x()) && (this->y() == other.y()) && (this->z() == other.z());
+		}
+
+		bool operator!=(const Point3d<T> &other) const {
 			return !(*this == other);
+		}
+
+		bool operator<(const Point3d<T> &other) const {
+			return x() < other.x() || ( x() == other.x() && ( y() < other.y() || ( y() == other.y() && z() < other.z())));
 		}
 
 	private:
