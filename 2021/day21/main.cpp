@@ -27,6 +27,16 @@ struct Dice {
 
 		return ret;
 	}
+
+	int next(int turns) {
+		int ret = 0;
+
+		while (turns-- > 0) {
+			ret += this->next();
+		}
+
+		return ret;
+	}
 };
 
 
@@ -40,20 +50,53 @@ struct Player {
 		this->score    = 0;
 		this->id       = 0;
 	}
+
+	void handleDiceResult(int result) {
+		this->position = 1 + (((this->position - 1) + result) % 10);
+		this->score   += this->position;
+	}
 };
+
+
+static const int probability[7] = {
+	1, 3, 6, 7, 6, 3, 1
+};
+
+
+static void solvePartB(int positions[2], int scores[2], bool isP1, int64_t wins[2], int64_t occurs) {
+	if (scores[0] >= 21) {
+		wins[0] += occurs;
+
+	} else if (scores[1] >= 21) {
+		wins[1] += occurs;
+
+	} else {
+		int newPositions[2] = { positions[0], positions[1] };
+		int newScores[2]    = { scores[0],    scores[1] };
+
+		for (int comb = 0; comb < 7; comb++) {
+			int idx = isP1 ? 0 : 1;
+
+			newPositions[idx] = 1 + (((positions[idx] - 1) + (comb + 3)) % 10);
+			newScores[idx]    = scores[idx] + newPositions[idx];
+
+			solvePartB(newPositions, newScores, ! isP1, wins, probability[comb] * occurs);
+		}
+	}
+}
 
 
 int main(int argc, char *argv[]) {
 	auto lines = File::readAllLines(argv[1]);
 
 	{
-		std::vector<Player> players;
+		std::vector<Player> _players;
 
 		for (const auto &l : lines) {
 			Player p;
 
 			if (sscanf(l.c_str(), "Player %d starting position: %d", &p.id, &p.position) == 2) {
-				players.push_back(p);
+				_players.push_back(p);
 
 			} else {
 				abort();
@@ -61,18 +104,15 @@ int main(int argc, char *argv[]) {
 		}
 
 		{
+			std::vector<Player> players = _players;
+
 			Dice dice;
 			bool gameOver = false;
 
 			while (! gameOver) {
 				for (auto &player : players) {
-					for (int j = 0; j < 3; j++) {
-						int diceVal = dice.next();
+					player.handleDiceResult(dice.next(3));
 
-						player.position = 1 + (((player.position - 1) + diceVal) % 10);
-					}
-
-					player.score += player.position;
 					if (player.score >= 1000) {
 						gameOver = true;
 						break;
@@ -88,6 +128,16 @@ int main(int argc, char *argv[]) {
 					PRINTF(("PART_A: %ld", partA * p.score));
 				}
 			}
+		}
+
+		{
+			int     positions[2] = { _players[0].position, _players[1].position };
+			int64_t wins[2]      = { 0, 0};
+			int     scores[2]    = { 0, 0 };
+
+			solvePartB(positions, scores, true, wins, 1);
+
+			PRINTF(("PART_B: %ld", wins[0] > wins[1] ? wins[0] : wins[1]));
 		}
 	}
 
