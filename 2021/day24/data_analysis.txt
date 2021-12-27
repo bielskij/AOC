@@ -1,0 +1,299 @@
+; 1
+inp w
+mul x 0  ; x := 0
+add x z  ; nop
+mod x 26 ; nop
+div z 1  ; nop
+add x 12 ; x := 12
+eql x w  ; x == w ? x := 1 : x := 0
+eql x 0  ; x == 0 ? x := 1 : x := 0
+mul y 0  ; nop
+add y 25 ; y := 25
+mul y x  ; y *= x (x == 0 || x == 1)
+add y 1  ; y += 1
+mul z y  ; nop
+mul y 0  ; y := 0
+add y w  ; y += w
+add y 4  ; y += 4
+mul y x  ; y *= x (x == 0 || x == 1)
+add z y  ; z += y (w + 4 || 0)
+; z will have always (w + 4) value because w cannot be 12 as it is not a single digit
+; 5 <= z <= 13
+;  
+
+; 2
+inp w
+mul x 0  ; x := 0
+add x z  ; x += z (5 - 13)
+mod x 26 ; x := x mod 26 (5 - 13)
+div z 1  ; nop
+add x 11 ; x += 11 (16 - 24)
+eql x w  ; x == w ? x := 1 : x := 0
+eql x 0  ; x == 0 ? x := 1 : x := 0
+mul y 0  ; y := 0
+add y 25 ; y += 25
+mul y x  ; y *= 1 ( = 25, x is always greater than any w value)
+add y 1  ; y += 1 ( = 26)
+mul z y  ; z *= y ( = z * 26) <----------
+mul y 0  ; y := 0
+add y w  ; y := w (1 - 9)
+add y 11 ; y += 11 (12 - 20)
+mul y x  ; y *= 1 (12 - 20)
+add z y  ; z += (12 - 20)    <----------
+
+; z = z * 26 + (12 - 20)
+
+
+; 3
+inp w
+mul x 0  ; x := 0;
+add x z  ; x := z
+mod x 26 ; x %= 26 (0 - 25)
+div z 1  ; nop
+add x 13 ; x += 13
+eql x w  ; 
+eql x 0  ; always true (x = 1)
+mul y 0  ; y := 0
+add y 25 ; y += 25
+mul y x  ; nop
+add y 1  ; y += 1
+mul z y  ; z *= y (z * 26)
+mul y 0  ; y := 0
+add y w  ; y += w (1 - 9)
+add y 5  ; y += 5 (6 - 14)
+mul y x  ; nop
+add z y  ; z += y (6 - 14)
+
+; z = z * 26 + (6 - 14)
+
+
+; 4
+inp w     ; 
+mul x 0   ; 
+add x z   ; 
+mod x 26  ; 
+div z 1   ; 
+add x 11  ; 
+eql x w   ; 
+eql x 0   ; 
+mul y 0   ; y := 0
+add y 25  ; y += 25
+mul y x   ; nop
+add y 1   ; y += 1
+mul z y   ; 
+mul y 0   ; y := 0
+add y w   ; y := w
+add y 11  ; y += 11 (12 - 20)
+mul y x   ; 
+add z y   ; 
+
+; z = z * 26 + (12 - 20)
+
+
+; 5
+inp w     ; 
+mul x 0   ; 
+add x z   ; 
+mod x 26  ; 
+div z 1   ; 
+add x 14  ; 
+eql x w   ; 
+eql x 0   ; 
+mul y 0   ; 
+add y 25  ; 
+mul y x   ; 
+add y 1   ; 
+mul z y   ; 
+mul y 0   ; y := 0
+add y w   ; y := w
+add y 14  ; y += 14 (15 - 23)
+mul y x   ; 
+add z y   ; 
+
+; z = z * 26 + (15 - 23)
+
+; 6
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -10
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (11 <= x <= 19)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 7
+mul y x
+add z y
+
+; 7
+inp w     ; 
+mul x 0   ; 
+add x z   ; 
+mod x 26  ; 
+div z 1   ; 
+add x 11  ; 
+eql x w   ; 
+eql x 0   ; 
+mul y 0   ; 
+add y 25  ; 
+mul y x   ; 
+add y 1   ; 
+mul z y   ; 
+mul y 0   ; y := 0
+add y w   ; y := w
+add y 11  ; Y += 11
+mul y x   ; 
+add z y   ; 
+
+; z = z * 26 + (12 - 20)
+
+; 8
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -9
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (10 <= x <= 18)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+
+; 9
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -3
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (4 <= x <= 12)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+
+; 10
+inp w      ; 
+mul x 0    ; 
+add x z    ; 
+mod x 26   ; 
+div z 1    ; 
+add x 13   ; 
+eql x w    ; 
+eql x 0    ; 
+mul y 0    ; 
+add y 25   ; 
+mul y x    ; 
+add y 1    ; 
+mul z y    ; 
+mul y 0    ; 
+add y w    ; y := w
+add y 5    ; y += 5
+mul y x    ; 
+add z y    ; 
+
+; z = z * 26 + (6 - 14)
+; 11 - 13 (na wejściu 6 - 8)
+
+
+; 11
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -5
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (6 <= x <= 14)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 9
+mul y x
+add z y
+
+; 12
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -10
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (11 <= x <= 19)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 12
+mul y x
+add z y
+
+; 13
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -4
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (5 <= x <= 13)
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 14
+mul y x
+add z y
+
+; 14
+inp w     ; 
+mul x 0   ; 
+add x z   ; 
+mod x 26  ; 
+div z 26  ; 
+add x -5  ; 
+eql x w   ; <- tutaj musi być spełniony żeby na końcu wyszło 0 (6 <= x <= 14)
+eql x 0   ; 
+mul y 0   ; 
+add y 25  ; 
+mul y x   ; 
+add y 1   ; 
+mul z y   ; 
+mul y 0   ; y := 0
+add y w   ; y += w
+add y 14  ; y += 14
+mul y x   ; 
+add z y   ; 
