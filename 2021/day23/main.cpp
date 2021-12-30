@@ -387,10 +387,13 @@ class AmphipodsGraph : public graph::Graph {
 				std::vector<std::string> endMap = {
 					"#############",
 					"#...........#",
-					"###A#B#C#D###",
-					"  #A#B#C#D#  ",
-					"  #########  "
 				};
+
+				for (int i = 0; i < map.size() - 3; i++) {
+					endMap.push_back("###A#B#C#D###");
+				}
+
+				endMap.push_back("  #########  ");
 
 				this->addNode(new AmphipodsNode(endMap, false));
 			}
@@ -503,16 +506,16 @@ int main(int argc, char *argv[]) {
 				int cost = 0;
 
 				for (int i = 1; i < route.size(); i++) {
-					PRINTF(("COST: %d", (int)graph.getEdge(route[i - 1]->id(), route[i]->id())->cost()));
 					cost += graph.getEdge(route[i - 1]->id(), route[i]->id())->cost();
 				}
 
-				// 11889 - wrong
-				PRINTF(("Path len: %zd, cost: %d", route.size(), cost));
+				PRINTF(("RESULT: %d", cost));
 
+#if 0
 				for (auto node : route) {
 					AmphipodsGraph::AmphipodsNode::from(node)->dump();
 				}
+#endif
 			}
 		}
 	}
