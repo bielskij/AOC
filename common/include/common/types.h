@@ -76,6 +76,10 @@ class Point {
 			return *this;
 		}
 
+		bool operator<(const Point &other) const {
+			return (x() < other.x()) || ((x() == other.x()) && (y() < other.y()));
+		}
+
 	private:
 		T _x;
 		T _y;
