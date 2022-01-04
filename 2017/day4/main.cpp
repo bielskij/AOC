@@ -25,5 +25,30 @@ int main(int argc, char *argv[]) {
 		PRINTF(("PART_A: %d", partA));
 	}
 
+	{
+		int partB = 0;
+
+		for (const auto &l : lines) {
+			auto words = utils::strTok(l, ' ');
+
+			std::set<std::string> uniqueWords;
+
+			for (const auto &w : words) {
+				std::string tmp = w;
+
+				std::sort(tmp.begin(), tmp.end());
+
+				uniqueWords.insert(tmp);
+			}
+
+
+			if (uniqueWords.size() == words.size()) {
+				partB++;
+			}
+		}
+
+		PRINTF(("PART_B: %d", partB));
+	}
+
 	return 0;
 }
