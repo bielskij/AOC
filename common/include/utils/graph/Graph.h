@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include "Node.h"
 #include "Edge.h"
