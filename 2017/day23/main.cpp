@@ -1,6 +1,9 @@
 #include <functional>
 #include <memory>
 
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #include "common/types.h"
 
 #include "utils/file.h"
@@ -42,7 +45,7 @@ struct Coprocessor {
 			}
 
 			Reg &fromChar(char c) {
-				if (c < 'a' || c >= 'h') {
+				if (c < 'a' || c > 'h') {
 					abort();
 				}
 				return _regs[c - 'a'];
@@ -156,35 +159,36 @@ struct Coprocessor {
 			std::string opName;
 
 			{
-				const std::string &inst = this->code[this->pc];
+				auto tokens = utils::strTok(this->code[this->pc], ' ');
 
-				char op[10];
-
-				char operandRight[10];
-				char operandLeft[10];
-
-				if (sscanf(inst.c_str(), "%s %s %s", op, operandLeft, operandRight) != 3) {
-					PRINTF(("Unable to parse instruction! '%s'", inst.c_str()));
-					abort();
+				if (tokens.size() != 3) {
+					PRINTF(("Unable to parse instruction! '%s'", this->code[this->pc].c_str()));
+					exit(1);
 				}
 
-				DBG(("[%d] opcode: '%s', left: '%c', right: '%s'", this->pc, op, operandLeft, operandRight));
+//				DBG(("[%d] opcode: '%s', left: '%s', right: '%s'", this->pc, tokens[0].c_str(), tokens[1].c_str(), tokens[2].c_str()));
 
-				if (::isalpha(operandLeft[0])) {
-					x = std::make_unique<RegOperand>(this->regs.fromChar(operandLeft[0]));
+				{
+					auto &opLeft = tokens[1];
 
-				} else {
-					x = std::make_unique<ImmOperand>(std::stol(operandLeft));
+					if (::isalpha(opLeft[0])) {
+						x = std::make_unique<RegOperand>(this->regs.fromChar(opLeft[0]));
+					} else {
+						x = std::make_unique<ImmOperand>(std::stol(opLeft));
+					}
 				}
 
-				if (::isalpha(operandRight[0])) {
-					y = std::make_unique<RegOperand>(this->regs.fromChar(operandRight[0]));
+				{
+					auto &opRight = tokens[2];
 
-				} else {
-					y = std::make_unique<ImmOperand>(std::stol(operandRight));
+					if (::isalpha(opRight[0])) {
+						y = std::make_unique<RegOperand>(this->regs.fromChar(opRight[0]));
+					} else {
+						y = std::make_unique<ImmOperand>(std::stol(opRight));
+					}
 				}
 
-				opName = op;
+				opName = tokens[0];
 			}
 
 			auto it = this->opcodes.find(opName);
@@ -256,6 +260,106 @@ int main(int argc, char *argv[]) {
 		c.run();
 
 		PRINTF(("PART_A: %d", c.getMulCalled()));
+	}
+
+	{
+		// a = 1
+
+		// 1   set b 79
+		// 2   set c b
+		// 3   jnz a lab1 (2)
+		// 4   jnz 1 lab2 (5) -> always true
+		// lab1:
+		// 5   mul b 100
+		// 6   sub b -100000
+		// 7   set c b
+		// 8   sub c -17000
+		// lab2
+		// 9   set f 1
+		// 10  set d 2
+		// lab5
+		// 11  set e 2
+		// lab4
+		// 12  set g d
+		// 13  mul g e
+		// 14  sub g b
+		// 15  jnz g lab3 (2)
+		// 16  set f 0
+		// lab3
+		// 17  sub e -1
+		// 18  set g e
+		// 19  sub g b
+		// 20  jnz g lab4 (-8)
+
+		// 21  sub d -1
+		// 22  set g d
+		// 23  sub g b
+		// 24  jnz g lab5 (-13)
+
+		// 25  jnz f lab6 (2)
+		// 26  sub h -1
+		// lab6
+		// 27  set g b
+		// 28  sub g c
+		// 29  jnz g 2
+		// 30  jnz 1 3
+		// 31  sub b -17
+		// 32  jnz 1 -23
+
+		int64_t a = 0;
+		int64_t b = 0;
+		int64_t c = 0;
+		int64_t d = 0;
+		int64_t e = 0;
+		int64_t f = 0;
+		int64_t g = 0;
+		int64_t h = 0;
+
+		a = 1;
+		b = 79;
+		c = b;
+
+		// lab1
+		if (a != 0) {
+			b *= 100;
+			b -= -100000;
+			c  = b;
+			c -= -17000;
+		}
+
+		// lab2
+		do {
+			f = 1;
+			d = 2;
+
+			do {
+				// lab4
+				e = b;
+
+				if (((e % d) == 0) && ((e - 1) * d) >= b) {
+					f = 0;
+				}
+
+				g = ++d - b;
+
+			} while (g != 0);
+
+			if (f == 0) {
+				h++;
+			}
+
+			g  = b;
+			g -= c;
+
+			if (g == 0) {
+				break;
+			}
+
+			b += 17;
+
+		} while (true);
+
+		PRINTF(("PART_B: %"PRId64, h));
 	}
 
 	return 0;
