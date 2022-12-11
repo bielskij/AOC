@@ -32,17 +32,6 @@ int utils::toInt(const std::string &src) {
 }
 
 
-std::vector<int> utils::toIntV(const std::vector<std::string> &src) {
-	std::vector<int> ret;
-
-	for (auto it = src.begin(); it != src.end(); it++) {
-		ret.push_back(toInt(it->c_str()));
-	}
-
-	return ret;
-}
-
-
 std::string utils::toString(int value) {
 	return utils::toString((int64_t)value);
 }
