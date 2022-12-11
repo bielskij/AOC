@@ -13,7 +13,19 @@
 
 namespace utils {
 	int toInt(const std::string &src);
+
 	std::vector<int> toIntV(const std::vector<std::string> &src);
+
+	template <typename intType>
+	std::vector<intType> toIntV(const std::vector<std::string> &src) {
+		std::vector<intType> ret;
+
+		for (auto it = src.begin(); it != src.end(); it++) {
+			ret.push_back(std::stoll(it->c_str()));
+		}
+
+		return ret;
+	}
 
 	int64_t toInt64t(const std::string &src);
 	std::vector<int64_t> toInt64tV(const std::vector<std::string> &src);
@@ -77,7 +89,7 @@ namespace utils {
 
 	template <class T>
 	T nww(T a, T b) {
-		return (a * b) / nwd(a, b);
+		return (a * b) / gcd(a, b);
 	}
 
 	void genCombinationsUtil(std::vector<std::vector<int> > &combinations, std::vector<int> &tmp, int n, int left, int k);
