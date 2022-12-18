@@ -14,8 +14,6 @@
 namespace utils {
 	int toInt(const std::string &src);
 
-	std::vector<int> toIntV(const std::vector<std::string> &src);
-
 	template <typename intType>
 	std::vector<intType> toIntV(const std::vector<std::string> &src) {
 		std::vector<intType> ret;
