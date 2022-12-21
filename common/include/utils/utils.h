@@ -28,6 +28,25 @@ namespace utils {
 	int64_t toInt64t(const std::string &src);
 	std::vector<int64_t> toInt64tV(const std::vector<std::string> &src);
 
+	// JAVA Math.floorDiv
+	template<typename type>
+	static type floorDiv(type x, type y) {
+		type r = x / y;
+		// if the signs are different and modulo not zero, round down
+		if ((x ^ y) < 0 && (r * y != x)) {
+			r--;
+		}
+
+		return r;
+	}
+
+	// JAVA Math.floorMod
+	template<typename type>
+	static type floorMod(type x, type y) {
+		type r = x - floorDiv<type>(x, y) * y;
+		return r;
+	}
+
 	std::vector<std::string> strTok(const std::string &str, char delimiter);
 
 	std::string toString(int value);
