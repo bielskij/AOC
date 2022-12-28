@@ -109,6 +109,330 @@ static bool isWall(char c) {
 }
 
 
+static bool inTheSameSquare(const Point<int> &p1, const Point<int> &p2) {
+	return (std::abs(p1.x() - p2.x()) < 50) && (std::abs(p1.y() - p2.y()) < 50);
+}
+
+
+static int getSquareIdx(const Point<int> &p) {
+	return 3 * (p.y() / 50) + (p.x() / 50);
+}
+
+
+static int getSquareX(int squareIdx) {
+	return (squareIdx % 3) * 50;
+}
+
+
+static int getSquareY(int squareIdx) {
+	return (squareIdx / 3) * 50;
+}
+
+
+static int solve(std::vector<std::string> map, const Point<int> &startPoint, const Point<int> &max, const std::string &rules, bool partA) {
+	int ret = 0;
+
+	{
+		Direction  currentDirection = Direction::RIGHT;
+		Point<int> currentPoint     = startPoint;
+
+		std::string toParse;
+
+		for (auto idx = 0; idx < rules.size(); idx++) {
+			Direction nextDirection    = currentDirection;
+			bool      hasNextDirection = true;
+
+			switch (rules[idx]) {
+				case 'R':
+					nextDirection = Direction::RIGHT;
+					break;
+
+				case 'L':
+					nextDirection = Direction::LEFT;
+					break;
+
+				default:
+					hasNextDirection = false;
+					toParse += rules[idx];
+			}
+
+			if (hasNextDirection || (idx == rules.length() - 1)) {
+				if (! toParse.empty()) {
+					int steps = utils::toInt(toParse);
+
+					toParse.clear();
+
+					for (int step = 0; step < steps; step++) {
+						auto mod = getDirectionModifier(currentDirection);
+
+						Point<int> newCurrent = currentPoint + mod;
+
+						if (! partA) {
+							/*
+							 * My map was:
+							 *      ___ ___
+							 *     |   |   |
+							 *   0 | 1 | 2 |
+							 *     |___|___|
+							 *     |   |
+							 *   3 | 4 | 5
+							 *  ___|___|
+							 * |   |   |
+							 * | 6 | 7 | 8
+							 * |___|___|
+							 * |   |
+							 * | 9 | 10  11
+							 * |___|
+							 */
+							int srcSquare = getSquareIdx(currentPoint);
+
+							if (newCurrent.x() < 0) {
+								newCurrent.x(max.x() - 1);
+
+							} else if (newCurrent.x() >= max.x()) {
+								newCurrent.x(0);
+							}
+
+							if (newCurrent.y() < 0) {
+								newCurrent.y(max.y() - 1);
+
+							} else if (newCurrent.y() >= max.y()) {
+								newCurrent.y(0);
+							}
+
+							if (getSquareIdx(newCurrent) == srcSquare) {
+								if (! isWall(map[newCurrent.y()][newCurrent.x()])) {
+									currentPoint = newCurrent;
+
+									map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
+								}
+
+							} else {
+								Point<int> srcSquareOff = Point<int>(
+									currentPoint.x() - getSquareX(srcSquare),
+									currentPoint.y() - getSquareY(srcSquare)
+								);
+
+								Direction tmpDirection = currentDirection;
+
+								switch (srcSquare) {
+									case 1:
+										switch (currentDirection) {
+											case Direction::UP:
+												newCurrent.set(getSquareX(9), getSquareY(9) + srcSquareOff.x());
+												tmpDirection = Direction::RIGHT;
+												break;
+
+											case Direction::LEFT:
+												newCurrent.set(getSquareX(6), getSquareY(6) + 49 - srcSquareOff.y());
+												tmpDirection = Direction::RIGHT;
+												break;
+
+											default:
+												break;
+										}
+										break;
+
+									case 2:
+										switch (currentDirection) {
+											case Direction::UP:
+												newCurrent.set(getSquareX(9) + srcSquareOff.x(), getSquareY(9) + 49);
+												tmpDirection = Direction::UP;
+												break;
+
+											case Direction::DOWN:
+												newCurrent.set(getSquareX(4) + 49, getSquareY(4) + srcSquareOff.x());
+												tmpDirection = Direction::LEFT;
+												break;
+
+											case Direction::LEFT:
+												break;
+
+											case Direction::RIGHT:
+												newCurrent.set(getSquareX(7) + 49, getSquareY(7) + 49 - srcSquareOff.y());
+												tmpDirection = Direction::LEFT;
+												break;
+										}
+										break;
+
+									case 4:
+										switch (currentDirection) {
+											case Direction::UP:
+											case Direction::DOWN:
+												break;
+
+											case Direction::LEFT:
+												newCurrent.set(getSquareX(6) + srcSquareOff.y(), getSquareY(6));
+												tmpDirection = Direction::DOWN;
+												break;
+
+											case Direction::RIGHT:
+												newCurrent.set(getSquareX(2) + srcSquareOff.y(), getSquareY(2) + 49);
+												tmpDirection = Direction::UP;
+												break;
+										}
+										break;
+
+									case 6:
+										switch (currentDirection) {
+											case Direction::UP:
+												newCurrent.set(getSquareX(4), getSquareY(4) + srcSquareOff.x());
+												tmpDirection = Direction::RIGHT;
+												break;
+
+											case Direction::LEFT:
+												newCurrent.set(getSquareX(1), getSquareY(1) + 49 - srcSquareOff.y());
+												tmpDirection = Direction::RIGHT;
+												break;
+
+											case Direction::DOWN:
+											case Direction::RIGHT:
+												break;
+										}
+										break;
+
+									case 7:
+										switch (currentDirection) {
+											case Direction::UP:
+											case Direction::LEFT:
+												break;
+
+											case Direction::DOWN:
+												newCurrent.set(getSquareX(9) + 49, getSquareY(9) + srcSquareOff.x());
+												tmpDirection = Direction::LEFT;
+												break;
+
+											case Direction::RIGHT:
+												newCurrent.set(getSquareX(2) + 49, getSquareY(2) + 49 - srcSquareOff.y());
+												tmpDirection = Direction::LEFT;
+												break;
+										}
+										break;
+
+									case 9:
+										switch (currentDirection) {
+											case Direction::UP:
+												break;
+
+											case Direction::DOWN:
+												newCurrent.set(getSquareX(2) + currentPoint.x(), getSquareY(2));
+												tmpDirection = Direction::DOWN;
+												break;
+
+											case Direction::LEFT:
+												newCurrent.set(getSquareX(1) + srcSquareOff.y(), getSquareY(1));
+												tmpDirection = Direction::DOWN;
+												break;
+
+											case Direction::RIGHT:
+												newCurrent.set(getSquareX(7) + srcSquareOff.y(), getSquareY(7) + 49);
+												tmpDirection = Direction::UP;
+												break;
+										}
+										break;
+								}
+
+								if (isWall(map[newCurrent.y()][newCurrent.x()])) {
+									break;
+								}
+
+								currentPoint     = newCurrent;
+								currentDirection = tmpDirection;
+
+								map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
+							}
+
+						} else {
+							if (
+								(newCurrent.x() < 0 || newCurrent.x() >= max.x()) ||
+								(newCurrent.y() < 0 || newCurrent.y() >= max.y()) ||
+								map[newCurrent.y()][newCurrent.x()] == ' '
+							) {
+								switch (currentDirection) {
+									case Direction::RIGHT:
+										for (auto i = 0; i < max.x(); i++) {
+											char c = map[currentPoint.y()][i];
+											if (isWall(c)) {
+												break;
+											}
+											if (canWalk(c)) {
+												currentPoint.set(i, currentPoint.y());
+												break;
+											}
+										}
+										break;
+
+									case Direction::LEFT:
+										for (auto i = max.x() - 1; i >= 0; i--) {
+											auto c = map[currentPoint.y()][i];
+											if (isWall(c)) {
+												break;
+											}
+											if (canWalk(c)) {
+												currentPoint.set(i, currentPoint.y());
+												break;
+											}
+										}
+										break;
+
+									case Direction::DOWN:
+										for (auto i = 0; i < max.y(); i++) {
+											auto c = map[i][currentPoint.x()];
+											if (isWall(c)) {
+												break;
+											}
+											if (canWalk(c)) {
+												currentPoint.set(currentPoint.x(), i);
+												break;
+											}
+										}
+										break;
+
+									case Direction::UP:
+										for (auto i = max.y() - 1; i >= 0; i--) {
+											auto c = map[i][currentPoint.x()];
+											if (isWall(c)) {
+												break;
+											}
+											if (canWalk(c)) {
+												currentPoint.set(currentPoint.x(), i);
+												break;
+											}
+										}
+										break;
+								}
+
+								map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
+
+							} else {
+								if (canWalk(map[newCurrent.y()][newCurrent.x()])) {
+									currentPoint = newCurrent;
+									map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
+								}
+							}
+						}
+					}
+				}
+
+				if (hasNextDirection) {
+					nextDirection = turn(currentDirection, nextDirection);
+				}
+
+				if (currentDirection != nextDirection) {
+					currentDirection = nextDirection;
+
+					map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
+				}
+			}
+		}
+
+		ret = (currentPoint.y() + 1) * 1000 + (currentPoint.x() + 1) * 4 + currentDirection;
+	}
+
+	return ret;
+}
+
+
 int main(int argc, char *argv[]) {
 	auto lines = File::readAllLines(argv[1]);
 
@@ -169,134 +493,8 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		{
-			Direction  currentDirection = Direction::RIGHT;
-			Point<int> currentPoint     = startPoint;
-
-			std::string toParse;
-
-			for (auto idx = 0; idx < rules.size(); idx++) {
-				Direction nextDirection = currentDirection;
-
-				switch (rules[idx]) {
-					case 'R':
-						nextDirection = turn(currentDirection, Direction::RIGHT);
-						break;
-
-					case 'L':
-						nextDirection = turn(currentDirection, Direction::LEFT);
-						break;
-
-					default:
-						toParse += rules[idx];
-				}
-
-				if ((currentDirection != nextDirection) || (idx == rules.length() - 1)) {
-					if (! toParse.empty()) {
-						int steps = utils::toInt(toParse);
-
-						toParse.clear();
-
-						auto mod = getDirectionModifier(currentDirection);
-
-						for (int step = 0; step < steps; step++) {
-							Point<int> newCurrent = currentPoint + mod;
-
-							if (
-								(newCurrent.x() < 0 || newCurrent.x() >= maxX) ||
-								(newCurrent.y() < 0 || newCurrent.y() >= maxY) ||
-								map[newCurrent.y()][newCurrent.x()] == ' '
-							) {
-								switch (currentDirection) {
-									case Direction::RIGHT:
-										for (auto i = 0; i < maxX; i++) {
-											char c = map[currentPoint.y()][i];
-											if (isWall(c)) {
-												break;
-											}
-											if (canWalk(c)) {
-												currentPoint.set(i, currentPoint.y());
-												break;
-											}
-										}
-										break;
-
-									case Direction::LEFT:
-										for (auto i = maxX - 1; i >= 0; i--) {
-											auto c = map[currentPoint.y()][i];
-											if (isWall(c)) {
-												break;
-											}
-											if (canWalk(c)) {
-												currentPoint.set(i, currentPoint.y());
-												break;
-											}
-										}
-										break;
-
-									case Direction::DOWN:
-										for (auto i = 0; i < maxY; i++) {
-											auto c = map[i][currentPoint.x()];
-											if (isWall(c)) {
-												break;
-											}
-											if (canWalk(c)) {
-												currentPoint.set(currentPoint.x(), i);
-												break;
-											}
-										}
-										break;
-
-									case Direction::UP:
-										for (auto i = maxY - 1; i >= 0; i--) {
-											auto c = map[i][currentPoint.x()];
-											if (isWall(c)) {
-												break;
-											}
-											if (canWalk(c)) {
-												currentPoint.set(currentPoint.x(), i);
-												break;
-											}
-										}
-										break;
-								}
-
-								map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
-
-							} else {
-								if (canWalk(map[newCurrent.y()][newCurrent.x()])) {
-									currentPoint = newCurrent;
-									map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
-								}
-							}
-						}
-					}
-
-					if (currentDirection != nextDirection) {
-						currentDirection = nextDirection;
-
-						map[currentPoint.y()][currentPoint.x()] = directionToChar(currentDirection);
-					}
-				}
-			}
-
-#if 0
-		printf("Start: %d, %d, mapSize: %d, %d\n", startPoint.x(), startPoint.y(), maxX + 1, maxY + 1);
-
-		for (int y = 0; y < maxY; y++) {
-			for (int x = 0; x < maxX; x++) {
-//				if (y == (max))
-			}
-		}
-		for (auto &r : map) {
-			printf("'%s'\n", r.c_str());
-		}
-
-//		printf("\nRules: '%s'\n", rules.c_str());
-#endif
-
-			PRINTF(("PART_A: %lld", (currentPoint.y() + 1) * 1000 + (currentPoint.x() + 1) * 4 + currentDirection));
-		}
+		PRINTF(("PART_A: %lld", solve(map, startPoint, Point<int>(maxX, maxY), rules, true)));
+		PRINTF(("PART_B: %lld", solve(map, startPoint, Point<int>(maxX, maxY), rules, false)));
 	}
 	return 0;
 }
