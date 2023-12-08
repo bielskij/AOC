@@ -109,6 +109,17 @@ namespace utils {
 		return (a * b) / gcd(a, b);
 	}
 
+	template <class T>
+	T nww(const std::vector<T> &factors) {
+		T ret = factors[0];
+
+		for (size_t i = 1; i < factors.size(); i++) {
+			ret = nww<T>(ret, factors[i]);
+		}
+
+		return ret;
+	}
+
 	void genCombinationsUtil(std::vector<std::vector<int> > &combinations, std::vector<int> &tmp, int n, int left, int k);
 	// Generates combinations from elements between <1 and n>
 	void genCombinations(std::vector<std::vector<int>> &out, int n, int k);
