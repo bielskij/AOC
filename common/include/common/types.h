@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <vector>
-
+#include <stdio.h>
 template <class T>
 class Point {
 	public:
@@ -65,19 +65,19 @@ class Point {
 			return !(*this == other);
 		}
 
-		Point operator+(const Point &other) {
-			return Point(this->x() + other.x(), this->y() + other.y());
+		friend Point<T> operator+(const Point<T> &a, const Point<T> &b) {
+			return Point<T>(a.x() + b.x(), a.y() + b.y());
 		}
 
-		Point &operator=(const Point &other) {
+		Point<T> &operator=(const Point<T> &other) {
 			this->_x = other._x;
 			this->_y = other._y;
 
 			return *this;
 		}
 
-		bool operator<(const Point &other) const {
-			return (x() < other.x()) || ((x() == other.x()) && (y() < other.y()));
+		friend bool operator<(const Point<T> &lhs, const Point<T> &rhs) {
+			return lhs._x < rhs._x || (lhs._x == rhs._x && lhs._y < rhs._y);
 		}
 
 	private:
