@@ -36,8 +36,18 @@ struct Map {
 		}
 
 		void addObstruction(const Point<int> &p) {
-			this->xy[p.x()].push_back(p.y());
-			this->yx[p.y()].push_back(p.x());
+			this->xy[p.x()].insert(p.y());
+			this->yx[p.y()].insert(p.x());
+		}
+
+		void removeObstruction(const Point<int> &p) {
+			auto it = this->xy.find(p.x());
+			if (it != this->xy.end()) {
+				auto it2 = it->second.find(p.y());
+				if (it2 != it->second.end()) {
+					it->second.erase(it2);
+				}
+			}
 		}
 
 		bool isObstruction(const Point<int> &p) const {
@@ -60,8 +70,8 @@ struct Map {
 		}
 
 	private:
-		std::map<int, std::vector<int>> xy;
-		std::map<int, std::vector<int>> yx;
+		std::map<int, std::set<int>> xy;
+		std::map<int, std::set<int>> yx;
 
 		int width;
 		int height;
@@ -111,7 +121,7 @@ struct State {
 					(nextPos.y() < 0 || nextPos.y() >= map.getHeight())
 				) {
 					ret = false;
-					
+
 				} else {
 					this->poisition = nextPos;
 				}
@@ -130,6 +140,10 @@ struct State {
 
 		void setPosition(const Point<int> &p) {
 			this->poisition = p;
+		}
+
+		const Point<int> &getPosition() const {
+			return this->poisition;
 		}
 
 		const std::set<Point<int>> &getSteps() const {
@@ -180,6 +194,29 @@ int main(int argc, char *argv[]) {
 			}
 
 			PRINTF(("PART_A: %zd", state.getSteps().size()));
+		}
+
+		{
+			State state = initialState;
+
+			std::set<Point<int>> points;
+
+			while (state.step(map)) {
+				map.addObstruction(state.getPosition());
+
+				State s = initialState;
+
+				while (s.step(map)) {
+				}
+
+				if (s.isInLoop()) {
+					points.insert(state.getPosition());
+				}
+
+				map.removeObstruction(state.getPosition());
+			}
+
+			PRINTF(("PART_B: %zd", points.size()));
 		}
 	}
 	
