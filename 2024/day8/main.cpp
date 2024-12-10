@@ -6,6 +6,54 @@
 #define DEBUG_LEVEL 5
 #include "common/debug.h"
 
+
+static int solve(const std::map<char, std::vector<Point<int>>> &antennas, const Point<int> &size, bool partB) {
+	std::set<Point<int>> antinodes;
+
+	for (const auto &antennaCoords : antennas) {
+		const auto &coords = antennaCoords.second;
+
+		for (int src = 0; src < coords.size(); src++) {
+			for (int dst = 0; dst < coords.size(); dst++) {
+				auto &srcPoint = coords[src];
+				auto &dstPoint = coords[dst];
+
+				if (src == dst) {
+					continue;
+				}
+
+				Point<int> v(
+					(srcPoint.x() - dstPoint.x()), 
+					(srcPoint.y() - dstPoint.y())
+				);
+
+				Point<int> ov = srcPoint + v;
+
+				if (partB) {
+					antinodes.insert(srcPoint);
+					antinodes.insert(dstPoint);
+				}
+
+				while (
+					ov.x() >= 0 && ov.y() >= 0 &&
+					ov.x() < size.x() && ov.y() < size.y()
+				) {
+					antinodes.insert(ov);
+
+					ov = ov + v;
+
+					if (! partB) {
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return antinodes.size();
+}
+
+
 int main(int argc, char *argv[]) {
 	auto lines = File::readAllLines(argv[1]);
 
@@ -26,38 +74,8 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		std::set<Point<int>> antinodes;
-
-		for (const auto &antennaCoords : antennas) {
-			const auto &coords = antennaCoords.second;
-
-			for (int src = 0; src < coords.size(); src++) {
-				for (int dst = 0; dst < coords.size(); dst++) {
-					auto &srcPoint = coords[src];
-					auto &dstPoint = coords[dst];
-
-					if (src == dst) {
-						continue;
-					}
-
-					Point<int> v(
-						(srcPoint.x() - dstPoint.x()), 
-						(srcPoint.y() - dstPoint.y())
-					);
-
-					Point<int> ov = srcPoint + v;
-
-					if (
-						ov.x() >= 0 && ov.y() >= 0 &&
-						ov.x() < size.x() && ov.y() < size.y()
-					) {
-						antinodes.insert(ov);
-					}
-				}
-			}
-		}
-
-		PRINTF(("PART_A: %zd", antinodes.size()));
+		PRINTF(("PART_A: %d", solve(antennas, size, false)));
+		PRINTF(("PART_B: %d", solve(antennas, size, true)));
 	}
 
 	return 0;
