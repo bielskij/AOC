@@ -7,6 +7,7 @@
 #include <set>
 #include <list>
 #include <algorithm>
+#include <cstdint>
 
 #include "common/types.h"
 
